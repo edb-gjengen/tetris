@@ -40,10 +40,10 @@ function TetrisGame(id) {
 	/* Functions: */
 	/**************/
 	this.getRandomBrick = function() {
-		return Math.floor(Math.random() * 8);
+		return 1 + Math.floor(Math.random() * 7);
 	}
 	
-	this.drawCurrentBrick = function() {
+	this.currentBrickShape = function() {
 		var glob_shape = this.brickShapes[this.currentBrickId];
 		var shape = createArray(4,2);
 		
@@ -68,6 +68,12 @@ function TetrisGame(id) {
 			}
 		}
 		
+		return shape;
+	}
+	
+	this.drawCurrentBrick = function() {
+		var shape = this.currentBrickShape();
+		
 		for (var i = 0; i < 4; i++) {
 			var x = this.currentBrickLoc[0]+shape[i][0];
 			var y = this.currentBrickLoc[1]+shape[i][1];
@@ -77,9 +83,9 @@ function TetrisGame(id) {
 	
 	this.doTurn = function() {
 		/* Fill out */
-		this.currentBrickId = 3;
+		this.currentBrickId = this.getRandomBrick();
 		this.currentBrickLoc = [5,5];
-		this.currentBrickRot = 1;
+		this.currentBrickRot = 0;
 	
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
