@@ -1,4 +1,18 @@
 function TetrisCanvas(id) {
+	/***********/
+	/* Colors: */
+	/***********/
+	this.colors = {
+		  0: 'black',
+		'I': 'cyan',
+		'J': 'blue',
+		'L': 'orange',
+		'O': 'yellow',
+		'S': 'green',
+		'T': 'purple',
+		'Z': 'red',
+	}
+	
 	/********************/
 	/* Global variables */
 	/********************/
@@ -28,6 +42,13 @@ function TetrisCanvas(id) {
 
 	}
 
+	this.drawBoard = function(board) {
+		for (var y = 0; y < this.sHeight; y++) {
+			for (var x = 0; x < this.sWidth; x++) {
+				this.drawRectangle(x,y,this.colors[board[x][y]]);
+			}
+		}
+	}
 
 	/***************/
 	/* Constructor */
