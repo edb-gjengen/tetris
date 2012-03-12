@@ -1,4 +1,4 @@
-function TetrisCanvas(id) {
+function TetrisCanvas(id, width, height) {
 	/***********/
 	/* Colors: */
 	/***********/
@@ -25,8 +25,8 @@ function TetrisCanvas(id) {
 	this.context = null;
 
 	/* Segment-dependant: */
-	this.sWidth = 10;
-	this.sHeight = 15;
+	this.sWidth = width;
+	this.sHeight = height;
 
 	/**************/
 	/* Functions: */
