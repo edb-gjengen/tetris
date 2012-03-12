@@ -1,7 +1,7 @@
 function TetrisGame(id) {
 	this.width = 10;
 	this.height = 15;
-	this.canvas = new TetrisCanvas(id);
+	this.canvas = new TetrisCanvas(id, this.width, this.height);
 	this.board = createArray(this.width, this.height);
 	
 	this.doTurn = function() {
@@ -9,8 +9,6 @@ function TetrisGame(id) {
 	}
 
 	this.TetrisGame = function(id) {
-		this.canvas = new TetrisCanvas(id, this.width, this.height);
-		this.board = createArray(this.width, this.height);
 		for (var y = 0; y < 15; y++) {
 			for (var x = 0; x < 10; x++) {
 				this.board[x][y] = 0;
