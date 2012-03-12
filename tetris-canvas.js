@@ -11,7 +11,7 @@ function TetrisCanvas(id, width, height) {
 		'S': 'green',
 		'T': 'purple',
 		'Z': 'red',
-	}
+	};
 	
 	/********************/
 	/* Global variables */
@@ -31,9 +31,10 @@ function TetrisCanvas(id, width, height) {
 	/**************/
 	/* Functions: */
 	/**************/
-	this.drawRectangle = function(x, y, color) {
+	this.drawRectangle = function(x, y, brickId) {
 		var topLeftCornerX = x*(this.pxSeparatorSize+this.pxRectSize);
 		var topLeftCornerY = this.pxHeight - (y + 1) * (this.pxSeparatorSize + this.pxRectSize) + this.pxSeparatorSize;
+		var color = this.colors[brickId];
 
 		this.context.beginPath();
 		this.context.rect(topLeftCornerX, topLeftCornerY, this.pxRectSize, this.pxRectSize);
@@ -45,7 +46,7 @@ function TetrisCanvas(id, width, height) {
 	this.drawBoard = function(board) {
 		for (var y = 0; y < this.sHeight; y++) {
 			for (var x = 0; x < this.sWidth; x++) {
-				this.drawRectangle(x,y,this.colors[board[x][y]]);
+				this.drawRectangle(x,y,board[x][y]);
 			}
 		}
 	}
