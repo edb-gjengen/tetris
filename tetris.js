@@ -43,6 +43,12 @@ function TetrisGame(id) {
 		return 1 + Math.floor(Math.random() * 7);
 	}
 	
+	this.resetCurrentBrick = function() {
+		this.currentBrickId = this.getRandomBrick();
+		this.currentBrickLoc = [Math.floor(this.width/2),this.height-1];
+		this.currentBrickRot = 0;
+	}
+	
 	this.currentBrickShape = function() {
 		var glob_shape = this.brickShapes[this.currentBrickId];
 		var shape = createArray(4,2);
@@ -81,12 +87,56 @@ function TetrisGame(id) {
 		}
 	}
 	
+	this.canCurrentBrickMove = function(dx,dy) {
+		var shape = this.currentBrickShape();
+		
+		for (var i = 0; i < 4; i++) {
+			var x = this.currentBrickLoc[0]+shape[i][0] + dx;
+			var y = this.currentBrickLoc[1]+shape[i][1] + dy;
+			
+			if (x < 0 || x >= this.width) { return false; }
+			if (y < 0) { return false; }
+			if (y >= this.height) { continue; }
+			
+			if (this.board[x][y] != 0) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	this.moveCurrentBrickHorizontally = function(dx) {
+		if (this.canCurrentBrickMove(dx, 0)) {
+			this.currentBrickLoc[0] += dx;
+			return true;
+		}
+		return false;
+	}
+	
+	this.moveCurrentBrickDown = function() {
+		if (this.canCurrentBrickMove(0, -1)) {
+			this.currentBrickLoc[1] -= 1;
+			return true;
+		}
+		
+		// If not, integrate into board:
+		var shape = this.currentBrickShape();
+		for (var i = 0; i < 4; i++) {
+			var x = this.currentBrickLoc[0]+shape[i][0];
+			var y = this.currentBrickLoc[1]+shape[i][1];
+
+			this.board[x][y] = this.bricks[this.currentBrickId];
+		}
+		
+		this.resetCurrentBrick();
+		return false;
+	}
+	
 	this.doTurn = function() {
 		/* Fill out */
-		this.currentBrickId = this.getRandomBrick();
-		this.currentBrickLoc = [5,5];
-		this.currentBrickRot = 0;
-	
+		this.moveCurrentBrickDown();
+		
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
 	}
@@ -100,11 +150,10 @@ function TetrisGame(id) {
 				this.board[x][y] = 0;
 			}
 		}
+		
+		this.currentBrickId = this.getRandomBrick();
+		this.currentBrickLoc = [5,5];
+		this.currentBrickRot = 0;
 	};
 	this.TetrisGame(id);
 }
-
-$(document).ready(function() {
-	var tetris = new TetrisGame("tetris-board");
-	tetris.doTurn();
-});
