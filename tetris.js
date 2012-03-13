@@ -39,6 +39,11 @@ function TetrisGame(id) {
 	/**************/
 	/* Functions: */
 	/**************/
+	this.redraw = function() {
+		this.canvas.drawBoard(this.board);
+		this.drawCurrentBrick();
+	}
+	
 	this.getRandomBrick = function() {
 		return 1 + Math.floor(Math.random() * 7);
 	}
@@ -47,6 +52,7 @@ function TetrisGame(id) {
 		this.currentBrickId = this.getRandomBrick();
 		this.currentBrickLoc = [Math.floor(this.width/2),this.height-1];
 		this.currentBrickRot = 0;
+		this.redraw();
 	}
 	
 	this.currentBrickShape = function() {
@@ -109,6 +115,7 @@ function TetrisGame(id) {
 	this.moveCurrentBrickHorizontally = function(dx) {
 		if (this.canCurrentBrickMove(dx, 0)) {
 			this.currentBrickLoc[0] += dx;
+			this.redraw();
 			return true;
 		}
 		return false;
@@ -117,6 +124,7 @@ function TetrisGame(id) {
 	this.moveCurrentBrickDown = function() {
 		if (this.canCurrentBrickMove(0, -1)) {
 			this.currentBrickLoc[1] -= 1;
+			this.redraw();
 			return true;
 		}
 		
@@ -136,9 +144,6 @@ function TetrisGame(id) {
 	this.doTurn = function() {
 		/* Fill out */
 		this.moveCurrentBrickDown();
-		
-		this.canvas.drawBoard(this.board);
-		this.drawCurrentBrick();
 	}
 
 	/****************/
