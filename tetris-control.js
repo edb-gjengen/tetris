@@ -16,6 +16,16 @@ function onKeyPressed(e) {
 		game.moveCurrentBrickHorizontally(1);
 		return;
 	}
+	
+	if (String.fromCharCode(e.charCode) == 's') {
+		game.moveCurrentBrickDown();
+		return;
+	}
+	
+	if (String.fromCharCode(e.charCode) == 'w') {
+		game.rotateCurrentBrick();
+		return;
+	}
 }
 
 $(document).ready(function() {

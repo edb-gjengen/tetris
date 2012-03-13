@@ -112,6 +112,11 @@ function TetrisGame(id) {
 		return true;
 	}
 	
+	this.canCurrentBrickRotate = function() {
+		/* TODO!! */
+		return true;
+	}
+	
 	this.moveCurrentBrickHorizontally = function(dx) {
 		if (this.canCurrentBrickMove(dx, 0)) {
 			this.currentBrickLoc[0] += dx;
@@ -138,6 +143,15 @@ function TetrisGame(id) {
 		}
 		
 		this.resetCurrentBrick();
+		return false;
+	}
+	
+	this.rotateCurrentBrick = function() {
+		if (this.canCurrentBrickRotate()) {
+			this.currentBrickRot = (this.currentBrickRot + 1) % 4;
+			this.redraw();
+			return true;
+		}
 		return false;
 	}
 	
