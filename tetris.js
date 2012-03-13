@@ -55,12 +55,12 @@ function TetrisGame(id) {
 		this.redraw();
 	}
 	
-	this.currentBrickShape = function() {
-		var glob_shape = this.brickShapes[this.currentBrickId];
+	this.brickShape = function(brickId, brickRot) {
+		var glob_shape = this.brickShapes[brickId];
 		var shape = createArray(4,2);
 		
 		for (var i = 0; i < 4; i++) {
-			switch(this.currentBrickRot) {
+			switch(brickRot) {
 				case 0:
 					shape[i][0] = glob_shape[i][0];
 					shape[i][1] = glob_shape[i][1];
@@ -84,7 +84,7 @@ function TetrisGame(id) {
 	}
 	
 	this.drawCurrentBrick = function() {
-		var shape = this.currentBrickShape();
+		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
 		
 		for (var i = 0; i < 4; i++) {
 			var x = this.currentBrickLoc[0]+shape[i][0];
@@ -94,7 +94,7 @@ function TetrisGame(id) {
 	}
 	
 	this.canCurrentBrickMove = function(dx,dy) {
-		var shape = this.currentBrickShape();
+		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
 		
 		for (var i = 0; i < 4; i++) {
 			var x = this.currentBrickLoc[0]+shape[i][0] + dx;
@@ -134,7 +134,7 @@ function TetrisGame(id) {
 		}
 		
 		// If not, integrate into board:
-		var shape = this.currentBrickShape();
+		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
 		for (var i = 0; i < 4; i++) {
 			var x = this.currentBrickLoc[0]+shape[i][0];
 			var y = this.currentBrickLoc[1]+shape[i][1];
