@@ -92,13 +92,13 @@ function TetrisGame(id) {
 			this.canvas.drawRectangle(x, y, this.bricks[this.currentBrickId]);
 		}
 	}
-	
-	this.canCurrentBrickMove = function(dx,dy) {
-		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
+
+	this.isValidBrickLoc = function(brickId, brickLoc, brickRot) {
+		var shape = this.brickShape(brickId, brickRot);
 		
 		for (var i = 0; i < 4; i++) {
-			var x = this.currentBrickLoc[0]+shape[i][0] + dx;
-			var y = this.currentBrickLoc[1]+shape[i][1] + dy;
+			var x = brickLoc[0] + shape[i][0];
+			var y = brickLoc[1] + shape[i][1];
 			
 			if (x < 0 || x >= this.width) { return false; }
 			if (y < 0) { return false; }
@@ -110,6 +110,19 @@ function TetrisGame(id) {
 		}
 		
 		return true;
+
+	}
+	
+	this.canCurrentBrickMove = function(dx,dy) {
+		var newLoc = createArray(2);
+		newLoc[0] = this.currentBrickLoc[0] + dx;
+		newLoc[1] = this.currentBrickLoc[1] + dy;
+
+		return this.isValidBrickLoc(
+				this.currentBrickId,
+				newLoc,
+				this.currentBrickRot
+			);
 	}
 	
 	this.canCurrentBrickRotate = function() {
