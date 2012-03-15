@@ -39,13 +39,7 @@ function TetrisGame(id) {
 	/**************/
 	/* Functions: */
 	/**************/
-	this.drawLocked = false;
-	this.drawLock = function() { this.drawLocked = true; };
-	this.drawUnlock = function() { this.drawLocked = false; };
-	 
 	this.redraw = function() {
-		if (this.drawLocked) return;
-
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
 	}
@@ -217,15 +211,12 @@ function TetrisGame(id) {
 	}
 	
 	this.doTurn = function() {
-		/* Fill out */
 		this.moveCurrentBrickDown();
 
-		this.drawLock();
 		var filledLines = this.getFilledLines();
 		for (var i = 0; i < filledLines.length; i++) {
 			this.removeLine(filledLines[i]-1);
 		}
-		this.drawUnlock();
 		this.redraw();
 
 		if (this.isGameLost) {
