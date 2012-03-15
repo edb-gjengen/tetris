@@ -47,11 +47,8 @@ function TetrisGame(id) {
 	this.getRandomBrick = function() {
 		return 1 + Math.floor(Math.random() * 7);
 	}
-	
-	this.resetCurrentBrick = function() {
-		this.currentBrickId = this.getRandomBrick();
-		this.currentBrickRot = 0;
 
+	this.getBrickStartingLocation = function(brickId) {
 		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
 		var lowestPoint = 0;
 
@@ -59,7 +56,14 @@ function TetrisGame(id) {
 			lowestPoint = Math.min(lowestPoint, shape[i][1]);
 		}
 
-		this.currentBrickLoc = [Math.floor(this.width/2),this.height-lowestPoint-1];
+		return [Math.floor(this.width/2),this.height-lowestPoint-1];
+	}
+	
+	this.resetCurrentBrick = function() {
+		this.currentBrickId = this.getRandomBrick();
+		this.currentBrickRot = 0;
+		this.currentBrickLoc = this.getBrickStartingLocation(this.currentBrickId);
+
 		this.redraw();
 	}
 	
@@ -149,7 +153,7 @@ function TetrisGame(id) {
 		}
 		return false;
 	}
-	
+
 	this.moveCurrentBrickDown = function() {
 		if (this.canCurrentBrickMove(0, -1)) {
 			this.currentBrickLoc[1] -= 1;
@@ -163,11 +167,15 @@ function TetrisGame(id) {
 			var x = this.currentBrickLoc[0]+shape[i][0];
 			var y = this.currentBrickLoc[1]+shape[i][1];
 
+			if (y >= this.height) {
+				return false;
+			}
+
 			this.board[x][y] = this.bricks[this.currentBrickId];
 		}
 		
 		this.resetCurrentBrick();
-		return false;
+		return true;
 	}
 	
 	this.rotateCurrentBrick = function() {
@@ -212,24 +220,18 @@ function TetrisGame(id) {
 				}
 			}
 		}
-	}
-
-	this.isGameLost = function() {
-		return false;
-	}
+	}	
 	
 	this.doTurn = function() {
-		this.moveCurrentBrickDown();
+		if (! this.moveCurrentBrickDown()) {
+			return false;
+		}
 
 		var filledLines = this.getFilledLines();
 		for (var i = 0; i < filledLines.length; i++) {
-			this.removeLine(filledLines[i]-1);
+			this.removeLine(filledLines[i]-i);
 		}
 		this.redraw();
-
-		if (this.isGameLost) {
-			return false;
-		}
 
 		return true;
 	}

@@ -2,8 +2,11 @@ var game = null;
 
 function doTurn() {
 	document.onkeypress = onKeyPressed;
-	game.doTurn();
-	window.setTimeout(doTurn, 333);
+	if (game.doTurn()) {
+		window.setTimeout(doTurn, 333);
+	} else {
+		alert('You lost!');
+	}
 }
 
 function onKeyPressed(e) {
