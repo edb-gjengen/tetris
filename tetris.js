@@ -39,7 +39,15 @@ function TetrisGame(id) {
 	/**************/
 	/* Functions: */
 	/**************/
+	this.drawLocker = false;
+	this.drawLock = function() { this.drawLocker = true; };
+	this.drawUnlock = function() { this.drawLocker = false; };
+
 	this.redraw = function() {
+		if (this.drawLocker) {
+			return;
+		}
+
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
 	}
@@ -230,7 +238,9 @@ function TetrisGame(id) {
 	}	
 	
 	this.doTurn = function() {
+		this.drawLock();
 		if (! this.moveCurrentBrickDown()) {
+			this.drawUnlock();
 			return false;
 		}
 
@@ -238,6 +248,7 @@ function TetrisGame(id) {
 		for (var i = 0; i < filledLines.length; i++) {
 			this.removeLine(filledLines[i]-i);
 		}
+		this.drawUnlock();
 		this.redraw();
 
 		return true;
