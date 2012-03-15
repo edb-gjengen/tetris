@@ -50,8 +50,16 @@ function TetrisGame(id) {
 	
 	this.resetCurrentBrick = function() {
 		this.currentBrickId = this.getRandomBrick();
-		this.currentBrickLoc = [Math.floor(this.width/2),this.height-1];
 		this.currentBrickRot = 0;
+
+		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
+		var lowestPoint = 0;
+
+		for (var i = 0; i < 4; i++) {
+			lowestPoint = Math.min(lowestPoint, shape[i][1]);
+		}
+
+		this.currentBrickLoc = [Math.floor(this.width/2),this.height-lowestPoint-1];
 		this.redraw();
 	}
 	
