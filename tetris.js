@@ -177,6 +177,13 @@ function TetrisGame(id) {
 		this.resetCurrentBrick();
 		return true;
 	}
+
+	this.hardDrop = function() {	
+		while (this.canCurrentBrickMove(0,-1)) {
+			this.moveCurrentBrickDown();
+		}
+		return this.moveCurrentBrickDown();		
+	}
 	
 	this.rotateCurrentBrick = function() {
 		if (this.canCurrentBrickRotate()) {
