@@ -27,6 +27,8 @@ function TetrisGame(id) {
 	/**************/
 	/* Variables: */
 	/**************/
+	this.gameIsOver = false;
+
 	this.width = 10;
 	this.height = 15;
 	this.canvas = new TetrisCanvas(id, this.width, this.height);
@@ -68,11 +70,13 @@ function TetrisGame(id) {
 	}
 	
 	this.resetCurrentBrick = function() {
-		this.currentBrickId = this.getRandomBrick();
-		this.currentBrickRot = 0;
-		this.currentBrickLoc = this.getBrickStartingLocation(this.currentBrickId);
-
-		this.redraw();
+		if (! this.gameIsOver) {
+			this.currentBrickId = this.getRandomBrick();
+			this.currentBrickRot = 0;
+			this.currentBrickLoc = this.getBrickStartingLocation(this.currentBrickId);
+	
+			this.redraw();
+		}
 	}
 	
 	this.brickShape = function(brickId, brickRot) {
@@ -176,6 +180,7 @@ function TetrisGame(id) {
 			var y = this.currentBrickLoc[1]+shape[i][1];
 
 			if (y >= this.height) {
+				this.gameIsOver = true;
 				return false;
 			}
 
@@ -252,6 +257,19 @@ function TetrisGame(id) {
 		this.redraw();
 
 		return true;
+	}
+
+	this.loop = function(game) {
+		if (! game.doTurn()) {
+			return false;
+		}
+			
+		window.setTimeout(game.loop, 333, game);
+		
+	}
+
+	this.startGame = function() {
+		this.loop(this);
 	}
 
 	/****************/

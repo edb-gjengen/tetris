@@ -1,15 +1,10 @@
 var game = null;
 var wasRecentlyRotated = false;
 
-function doTurn() {
+function initControls() {
 	document.onkeypress = onKeyPressed;
 	document.onkeydown = onKeyDown;
 	document.onkeyup = onKeyUp;
-	if (game.doTurn()) {
-		window.setTimeout(doTurn, 333);
-	} else {
-		alert('You lost!');
-	}
 }
 
 function onKeyDown(e) {
@@ -50,6 +45,7 @@ function onKeyUp(e) {
 }
 
 $(document).ready(function() {
+	initControls();
 	game = new TetrisGame("tetris-board");
-	doTurn();
+	game.startGame();
 });
