@@ -15,13 +15,13 @@ function TetrisGame(id) {
 	
 	this.brickShapes = {
 		0: [[0,0], [0,0], [0,0], [0,0]],
-		1: [[0,0], [0,1], [0,2], [0,3]],
-		2: [[0,0], [0,1], [0,2], [1,2]],
-		3: [[0,0], [0,1], [0,2], [-1,2]],
+		1: [[0,-1], [0,0], [0,1], [0,2]],
+		2: [[0,-1], [0,0], [0,1], [1,1]],
+		3: [[0,-1], [0,0], [0,1], [-1,1]],
 		4: [[0,0], [0,1], [1,0], [1,1]],
-		5: [[0,0], [1,0], [1,1], [2,1]],
-		6: [[0,0], [0,1], [-1,1], [1,1]],
-		7: [[0,0], [-1,0], [-1,1], [-2,1]],
+		5: [[-1,0], [0,0], [0,1], [1,1]],
+		6: [[0,-1], [0,0], [-1,0], [1,0]],
+		7: [[1,0], [0,0], [0,1], [-1,1]],
 	}
 
 	/**************/
@@ -39,7 +39,10 @@ function TetrisGame(id) {
 	/**************/
 	/* Functions: */
 	/**************/
+	this.drawLock = false;
 	this.redraw = function() {
+		if (this.drawLock) return;
+
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
 	}
@@ -170,10 +173,63 @@ function TetrisGame(id) {
 		}
 		return false;
 	}
+
+	this.getFilledLines = function() {
+		var lines = [];
+
+		for (var y = 0; y < this.height; y++) {
+			var isLineFilled = true;
+
+			for (var x = 0; x < this.width; x++) {
+				if (this.board[x][y] == 0) {
+					isLineFilled = false;		
+				}
+			}
+
+			if (isLineFilled) {
+				lines.push(y);
+			}
+		}
+		return lines;
+	}
+
+	this.removeLine = function(linenr) {
+		if (linenr == undefined) {
+			return;
+		}
+
+		for (var y = parseInt(linenr); y < this.height; y++) {
+			for (var x = 0; x < this.width; x++) {
+				if (y+1 >= this.height) {
+					this.board[x][y] = 0;
+				} else {
+					this.board[x][y] = this.board[x][y+1];
+				}
+			}
+		}
+	}
+
+	this.isGameLost = function() {
+		return false;
+	}
 	
 	this.doTurn = function() {
 		/* Fill out */
 		this.moveCurrentBrickDown();
+
+		this.drawLock = true;
+		var filledLines = this.getFilledLines();
+		for (var i = 0; i < filledLines.length; i++) {
+			this.removeLine(filledLines[i]);
+		}
+		this.drawLock = false;
+		this.redraw();
+
+		if (this.isGameLost) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/****************/
@@ -186,9 +242,7 @@ function TetrisGame(id) {
 			}
 		}
 		
-		this.currentBrickId = this.getRandomBrick();
-		this.currentBrickLoc = [5,5];
-		this.currentBrickRot = 0;
+		this.resetCurrentBrick();
 	};
 	this.TetrisGame(id);
 }
