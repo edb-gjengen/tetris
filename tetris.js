@@ -28,7 +28,9 @@ function TetrisGame(id) {
 	/* Variables: */
 	/**************/
 	this.gameIsOver = false;
-
+	this.gameLinesCleared = 0;
+	this.gameScore = 0;
+	
 	this.width = 10;
 	this.height = 15;
 	this.canvas = new TetrisCanvas(id, this.width, this.height);
@@ -52,6 +54,17 @@ function TetrisGame(id) {
 
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
+	}
+	
+	this.xyToTileIndex = function(x,y) {
+		return y * this.width + x;
+	}
+	
+	this.tileIndexToXY = function(tileIndex) {
+		var y = Math.floor(tileIndex / this.width);
+		var x = tileIndex % y;
+		
+		return [x,y];
 	}
 	
 	this.getRandomBrick = function() {
@@ -253,6 +266,9 @@ function TetrisGame(id) {
 		for (var i = 0; i < filledLines.length; i++) {
 			this.removeLine(filledLines[i]-i);
 		}
+		
+		this.gameScore += filledLines.length * 100;
+		this.gameLinesCleared += filledLines.length;
 		this.drawUnlock();
 		this.redraw();
 
