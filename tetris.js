@@ -29,7 +29,7 @@ function TetrisGame(id, linesId) {
 	/**************/
 	this.gameIsOver = false;
 	this.linesCleared = 0;
-
+	
 	this.width = 10;
 	this.height = 15;
 	this.canvas = new TetrisCanvas(id, this.width, this.height, linesId);
@@ -53,6 +53,17 @@ function TetrisGame(id, linesId) {
 
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
+	}
+	
+	this.xyToTileIndex = function(x,y) {
+		return y * this.width + x;
+	}
+	
+	this.tileIndexToXY = function(tileIndex) {
+		var y = Math.floor(tileIndex / this.width);
+		var x = tileIndex % y;
+		
+		return [x,y];
 	}
 	
 	this.getRandomBrick = function() {
