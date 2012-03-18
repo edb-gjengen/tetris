@@ -1,4 +1,4 @@
-function TetrisCanvas(id, width, height) {
+function TetrisCanvas(id, width, height, linesId) {
 	/***********/
 	/* Colors: */
 	/***********/
@@ -28,6 +28,9 @@ function TetrisCanvas(id, width, height) {
 	this.sWidth = width;
 	this.sHeight = height;
 
+	/* Score box: */
+	this.linesElement = 0;
+
 	/**************/
 	/* Functions: */
 	/**************/
@@ -51,17 +54,27 @@ function TetrisCanvas(id, width, height) {
 		}
 	}
 
+	this.updateLines = function(newLines) {
+		if (this.linesElement != 0) {
+			this.linesElement.html(newLines);
+		}
+	}
+
 	/***************/
 	/* Constructor */
 	/***************/
-	this.TetrisCanvas = function(id) {
+	this.TetrisCanvas = function(id, linesId) {
 		var canvas = document.getElementById(id);
 		this.pxHeight = $("#"+id).height();
 		this.pxWidth = $("#"+id).width();
 		this.pxRectSize = (this.pxWidth - (this.pxSeparatorSize * this.sWidth)) / (this.sWidth);
 		
 		this.context = canvas.getContext("2d");
+		
+		if (linesId) {
+			this.linesElement = $("#"+linesId);
+		}
 	}
 	
-	this.TetrisCanvas(id);
+	this.TetrisCanvas(id, linesId);
 }

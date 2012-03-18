@@ -1,4 +1,4 @@
-function TetrisGame(id) {
+function TetrisGame(id, linesId) {
 	/*********/
 	/* Enum: */
 	/*********/
@@ -28,10 +28,11 @@ function TetrisGame(id) {
 	/* Variables: */
 	/**************/
 	this.gameIsOver = false;
+	this.linesCleared = 0;
 
 	this.width = 10;
 	this.height = 15;
-	this.canvas = new TetrisCanvas(id, this.width, this.height);
+	this.canvas = new TetrisCanvas(id, this.width, this.height, linesId);
 	this.board = createArray(this.width, this.height);
 	
 	this.currentBrickId = 0;
@@ -253,6 +254,10 @@ function TetrisGame(id) {
 		for (var i = 0; i < filledLines.length; i++) {
 			this.removeLine(filledLines[i]-i);
 		}
+
+		this.linesCleared += filledLines.length;
+		this.canvas.updateLines(this.linesCleared);
+
 		this.drawUnlock();
 		this.redraw();
 
