@@ -38,6 +38,9 @@ function TetrisGame(id, linesId) {
 	this.currentBrickId = 0;
 	this.currentBrickLoc = [-1, -1];
 	this.currentBrickRot = 0;
+
+	this.nextBrickArray = Array(5);
+	this.nextBrickArrayIndex = 0;
 	
 	/**************/
 	/* Functions: */
@@ -66,10 +69,6 @@ function TetrisGame(id, linesId) {
 		return [x,y];
 	}
 	
-	this.getRandomBrick = function() {
-		return 1 + Math.floor(Math.random() * 7);
-	}
-
 	this.getBrickStartingLocation = function(brickId) {
 		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
 		var lowestPoint = 0;
@@ -81,9 +80,22 @@ function TetrisGame(id, linesId) {
 		return [Math.floor(this.width/2),this.height-lowestPoint-1];
 	}
 	
-	this.resetCurrentBrick = function() {
+	this.getRandomBrick = function() {
+		return 1 + Math.floor(Math.random() * 7);
+	}
+
+	this.getNextBrick = function() {
+		var brick = this.nextBrickArray[this.nextBrickArrayIndex];
+		
+		this.nextBrickArray[this.nextBrickArrayIndex] = this.getRandomBrick();
+		this.nextBrickArrayIndex = (this.nextBrickArrayIndex + 1) % 5;
+
+		return brick;
+	}
+
+	this.getNextCurrentBrick = function() {
 		if (! this.gameIsOver) {
-			this.currentBrickId = this.getRandomBrick();
+			this.currentBrickId = this.getNextBrick();
 			this.currentBrickRot = 0;
 			this.currentBrickLoc = this.getBrickStartingLocation(this.currentBrickId);
 	
@@ -199,7 +211,7 @@ function TetrisGame(id, linesId) {
 			this.board[x][y] = this.bricks[this.currentBrickId];
 		}
 		
-		this.resetCurrentBrick();
+		this.getNextCurrentBrick();
 		return true;
 	}
 
@@ -292,13 +304,19 @@ function TetrisGame(id, linesId) {
 	/* Constructor: */
 	/****************/
 	this.TetrisGame = function(id) {
+		// Initialize the board:
 		for (var y = 0; y < 15; y++) {
 			for (var x = 0; x < 10; x++) {
 				this.board[x][y] = 0;
 			}
 		}
+
+		// Initialize the next-brick array:
+		for (var i = 0; i < this.nextBrickArray.length; i++) {
+			this.nextBrickArray[i] = this.getRandomBrick();
+		}
 		
-		this.resetCurrentBrick();
+		this.getNextCurrentBrick();
 	};
 	this.TetrisGame(id);
 }
