@@ -7,26 +7,26 @@
 		<script src="tetris-control.js"></script>
 		
 		<style>
-			#tetris-board {
+			#tetris-board, #next-bricks {
 				background-color:black;
-				margin-left:auto;
-				margin-right:auto;
 			}
 		</style>
 	</head>
 
 	<body>
-		<div><canvas id="tetris-board" height="720" width="480" /></div>
-		<div>
-			<p>Lines: <span id="lines">0</span></p>
-		</div>
-		<div>
-			<ul style>Controls:
+		<div style="position:relative;"><canvas id="tetris-board" height="720px" width="480px" /></div>
+		<div id="infobox" style="position:absolute;top:20px;left:520px;width:200px;">
+			<ul>Controls:
 				<li>a,d - left/right</li>
 				<li>w - rotate</li>
 				<li>s - down</li>
 				<li>space - hard drop</li>
 			</ul>
+			<hr />
+			<p style="text-align:center;">Lines: <span id="lines">0</span></p>
+			<hr />
+			<p>Next bricks:</p>
+			<div><canvas id="next-bricks" height="500px" width="100px" /></div>
 		</div>
 	</body>
 </html>

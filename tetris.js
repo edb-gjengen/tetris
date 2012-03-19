@@ -32,8 +32,9 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	
 	this.width = 10;
 	this.height = 15;
-	this.canvas = new TetrisCanvas(canvasId, this.width, this.height, linesCounterId, nextBricksCanvasId);
+	this.canvas = new TetrisCanvas(canvasId, this.width, this.height);
 	this.lineCounterElement = 0;
+	this.nextBricksCanvas = nextBricksCanvasId ? new TetrisCanvas(nextBricksCanvasId, 5, 25) : null;
 	this.board = createArray(this.width, this.height);
 	
 	this.currentBrickId = 0;
@@ -57,6 +58,30 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 
 		this.canvas.drawBoard(this.board);
 		this.drawCurrentBrick();
+		this.redrawNextBrickCanvas();
+	}
+	
+	this.redrawNextBrickCanvas = function() {
+		if (this.nextBricksCanvas != null) {
+			for (var x = 0; x < this.nextBricksCanvas.sWidth; x++) {
+				for (var y = 0; y < this.nextBricksCanvas.sHeight; y++) {
+					this.nextBricksCanvas.drawRectangle(x,y,0);
+				}
+			}
+
+
+			for (var counter = 0; counter < this.nextBrickArray.length; counter++) {
+				var nextBrickId = this.nextBrickArray[(this.nextBrickArrayIndex + counter) % this.nextBrickArray.length];
+				
+				var shape = this.brickShape(nextBrickId, 2);
+				for (var i = 0; i < 4; i++) {
+					var x = 2 + shape[i][0];
+					var y = this.nextBricksCanvas.sHeight - (counter * 5 + 3 + shape[i][1]);
+
+					this.nextBricksCanvas.drawRectangle(x,y,this.bricks[nextBrickId]);
+				}
+			}	
+		}
 	}
 	
 	this.xyToTileIndex = function(x,y) {
@@ -103,7 +128,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			this.redraw();
 		}
 	}
-	
+
 	this.brickShape = function(brickId, brickRot) {
 		var glob_shape = this.brickShapes[brickId];
 		var shape = createArray(4,2);

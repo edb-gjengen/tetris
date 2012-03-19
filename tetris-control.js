@@ -62,6 +62,6 @@ function onKeyUp(e) {
 
 $(document).ready(function() {
 	initControls();
-	game = new TetrisGame("tetris-board", "lines");
+	game = new TetrisGame("tetris-board", "lines", "next-bricks");
 	game.startGame();
 });
