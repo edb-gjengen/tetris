@@ -73,10 +73,10 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			for (var counter = 0; counter < this.nextBrickArray.length; counter++) {
 				var nextBrickId = this.nextBrickArray[(this.nextBrickArrayIndex + counter) % this.nextBrickArray.length];
 				
-				var shape = this.brickShape(nextBrickId, 2);
+				var shape = this.brickShape(nextBrickId, 0);
 				for (var i = 0; i < 4; i++) {
 					var x = 2 + shape[i][0];
-					var y = this.nextBricksCanvas.sHeight - (counter * 5 + 3 + shape[i][1]);
+					var y = this.nextBricksCanvas.sHeight - (counter * 5 + 3 - shape[i][1]);
 
 					this.nextBricksCanvas.drawRectangle(x,y,this.bricks[nextBrickId]);
 				}
