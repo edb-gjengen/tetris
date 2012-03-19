@@ -1,4 +1,4 @@
-function TetrisGame(id, linesId) {
+function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	/*********/
 	/* Enum: */
 	/*********/
@@ -32,7 +32,8 @@ function TetrisGame(id, linesId) {
 	
 	this.width = 10;
 	this.height = 15;
-	this.canvas = new TetrisCanvas(id, this.width, this.height, linesId);
+	this.canvas = new TetrisCanvas(canvasId, this.width, this.height, linesCounterId, nextBricksCanvasId);
+	this.lineCounterElement = 0;
 	this.board = createArray(this.width, this.height);
 	
 	this.currentBrickId = 0;
@@ -265,6 +266,12 @@ function TetrisGame(id, linesId) {
 			}
 		}
 	}	
+
+	this.updateLineCounter = function() {
+		if (this.lineCounterElement != 0) {
+			this.lineCounterElement.html('' +this.linesCleared);
+		}
+	}
 	
 	this.doTurn = function() {
 		this.drawLock();
@@ -279,7 +286,7 @@ function TetrisGame(id, linesId) {
 		}
 
 		this.linesCleared += filledLines.length;
-		this.canvas.updateLines(this.linesCleared);
+		this.updateLineCounter();
 
 		this.drawUnlock();
 		this.redraw();
@@ -303,7 +310,10 @@ function TetrisGame(id, linesId) {
 	/****************/
 	/* Constructor: */
 	/****************/
-	this.TetrisGame = function(id) {
+	this.TetrisGame = function() {
+		// Find the line counter element if defined:
+		this.lineCounterElement = $('#' +linesCounterId);
+
 		// Initialize the board:
 		for (var y = 0; y < 15; y++) {
 			for (var x = 0; x < 10; x++) {
@@ -318,5 +328,5 @@ function TetrisGame(id, linesId) {
 		
 		this.getNextCurrentBrick();
 	};
-	this.TetrisGame(id);
+	this.TetrisGame();
 }
