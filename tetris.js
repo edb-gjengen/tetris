@@ -218,14 +218,8 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		return false;
 	}
 
-	this.moveCurrentBrickDown = function() {
-		if (this.canCurrentBrickMove(0, -1)) {
-			this.currentBrickLoc[1] -= 1;
-			this.redraw();
-			return true;
-		}
+	this.integrateCurrentIntoBoard = function () {
 		
-		// If not, integrate into board:
 		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
 		for (var i = 0; i < 4; i++) {
 			var x = this.currentBrickLoc[0]+shape[i][0];
@@ -238,8 +232,24 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 
 			this.board[x][y] = this.bricks[this.currentBrickId];
 		}
+
+	}
+
+	this.moveCurrentBrickDown = function() {
+		if (this.canCurrentBrickMove(0, -1)) {
+			this.currentBrickLoc[1] -= 1;
+			this.redraw();
+			return true;
+		}
 		
-		this.getNextCurrentBrick();
+		// If it can't move, trye to integrate it into board:
+		if (this.integrateCurrentIntoBoard() == false) {
+			return false;
+		}
+		
+		this.currentBrickId = 0;
+		this.currentBrickLoc = 0;
+		this.currentBrickRot = 0;
 		return true;
 	}
 
@@ -247,7 +257,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		while (this.canCurrentBrickMove(0,-1)) {
 			this.moveCurrentBrickDown();
 		}
-		return this.moveCurrentBrickDown();		
+		return this.integrateCurrentIntoBoard();		
 	}
 	
 	this.rotateCurrentBrick = function() {
@@ -307,6 +317,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			return false;
 		}
 
+
 		var filledLines = this.getFilledLines();
 		for (var i = 0; i < filledLines.length; i++) {
 			this.removeLine(filledLines[i]-i);
@@ -315,6 +326,10 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		this.stats.linesCleared(filledLines.length);
 		this.updateLineCounter();
 
+
+		if (this.currentBrickId == 0) {
+			this.getNextCurrentBrick();
+		}
 
 		this.drawUnlock();
 		this.redraw();

@@ -84,7 +84,7 @@ function startAI() {
 	var action = chooseAction(dropLocation);
 	doAction(action);
 
-	window.setTimeout(startAI, 100);
+	window.setTimeout(startAI, 50);
 }
 
 $(document).ready(function() {
