@@ -28,7 +28,8 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	/* Variables: */
 	/**************/
 	this.gameIsOver = false;
-	this.linesCleared = 0;
+
+	this.stats = new TetrisStats();
 	
 	this.width = 10;
 	this.height = 15;
@@ -125,6 +126,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			this.currentBrickRot = 0;
 			this.currentBrickLoc = this.getBrickStartingLocation(this.currentBrickId);
 	
+			this.stats.newBrick(this.currentBrickId);
 			this.redraw();
 		}
 	}
@@ -294,7 +296,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 
 	this.updateLineCounter = function() {
 		if (this.lineCounterElement != 0) {
-			this.lineCounterElement.html('' +this.linesCleared);
+			this.lineCounterElement.html('' +this.stats.countLinesCleared);
 		}
 	}
 	
@@ -310,8 +312,9 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			this.removeLine(filledLines[i]-i);
 		}
 
-		this.linesCleared += filledLines.length;
+		this.stats.linesCleared(filledLines.length);
 		this.updateLineCounter();
+
 
 		this.drawUnlock();
 		this.redraw();
