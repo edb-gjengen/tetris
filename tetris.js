@@ -32,8 +32,10 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	this.stats = new TetrisStats();
 	
 	this.width = 10;
-	this.height = 15;
-	this.canvas = new TetrisCanvas(canvasId, this.width, this.height);
+	this.canvas = new TetrisCanvas(canvasId, this.width); 
+	this.height = this.canvas.sHeight;
+
+
 	this.lineCounterElement = 0;
 	this.nextBricksCanvas = nextBricksCanvasId ? new TetrisCanvas(nextBricksCanvasId, 5, 25) : null;
 	this.board = createArray(this.width, this.height);
@@ -358,8 +360,8 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		this.lineCounterElement = $('#' +linesCounterId);
 
 		// Initialize the board:
-		for (var y = 0; y < 15; y++) {
-			for (var x = 0; x < 10; x++) {
+		for (var y = 0; y < this.height; y++) {
+			for (var x = 0; x < this.width; x++) {
 				this.board[x][y] = 0;
 			}
 		}

@@ -1,4 +1,4 @@
-function TetrisCanvas(canvasId, width, height) {
+function TetrisCanvas(canvasId, width) {
 	/***********/
 	/* Colors: */
 	/***********/
@@ -26,14 +26,14 @@ function TetrisCanvas(canvasId, width, height) {
 
 	/* Segment-dependant: */
 	this.sWidth = width;
-	this.sHeight = height;
+	this.sHeight = -1;
 
 	/**************/
 	/* Functions: */
 	/**************/
 	this.drawRectangle = function(x, y, brickId) {
-		var topLeftCornerX = x*(this.pxSeparatorSize+this.pxRectSize);
-		var topLeftCornerY = this.pxHeight - (y + 1) * (this.pxSeparatorSize + this.pxRectSize) + this.pxSeparatorSize;
+		var topLeftCornerX = Math.floor(x*(this.pxSeparatorSize+this.pxRectSize));
+		var topLeftCornerY = Math.floor(this.pxHeight - (y + 1) * (this.pxSeparatorSize + this.pxRectSize) + this.pxSeparatorSize);
 		var color = this.colors[brickId];
 
 		this.context.beginPath();
@@ -43,7 +43,19 @@ function TetrisCanvas(canvasId, width, height) {
 
 	}
 
+	this.clearOverflow = function() {
+		var topPixel = this.pxHeight - (this.sHeight * (this.pxRectSize + this.pxSeparatorSize));
+
+		if (topPixel > 0) {
+			this.context.beginPath();
+			this.context.rect(0,0,this.pxWidth, topPixel);
+			this.context.fillStyle = this.colors[0];
+			this.context.fill();
+		}
+	}
+
 	this.drawBoard = function(board) {
+		this.clearOverflow();
 		for (var y = 0; y < this.sHeight; y++) {
 			for (var x = 0; x < this.sWidth; x++) {
 				this.drawRectangle(x,y,board[x][y]);
@@ -60,8 +72,10 @@ function TetrisCanvas(canvasId, width, height) {
 		var canvas = document.getElementById(canvasId);
 		this.pxHeight = $("#"+canvasId).height();
 		this.pxWidth = $("#"+canvasId).width();
-		this.pxRectSize = (this.pxWidth - (this.pxSeparatorSize * this.sWidth)) / (this.sWidth);
+		this.pxRectSize = Math.floor((this.pxWidth - (this.pxSeparatorSize * this.sWidth)) / (this.sWidth));
 		
+		this.sHeight = Math.floor(this.pxHeight / (this.pxRectSize + this.pxSeparatorSize));
+
 		this.context = canvas.getContext("2d");
 	}
 	
