@@ -76,6 +76,8 @@ function TetrisCanvas(canvasId, width) {
 		
 		this.sHeight = Math.floor(this.pxHeight / (this.pxRectSize + this.pxSeparatorSize));
 
+		// Adjust canvas attributes:	
+		$("#"+canvasId).attr({ width: this.pxWidth, height: this.pxHeight });
 		this.context = canvas.getContext("2d");
 	}
 	
