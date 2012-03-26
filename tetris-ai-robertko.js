@@ -37,12 +37,41 @@ function getAllPossibleDropLocations(brickId) {
 	return dropLocations;
 }
 
+function getBoundsOfABrick(brickId, brickLoc, brickRot) {
+	var shape = game.brickShape(brickId, brickRot);
+
+	var leftTop = shape[0];
+	var rightTop = shape[0];
+
+	for (var i = 1; i < shape.length; i++) {
+		var tile = shape[i];
+
+		if (tile[0] < leftTop[0] || tile[1] > leftTop[1]) {
+			leftTop = tile;
+		}
+		
+		if (tile[0] > rightTop[0] || tile[1] > rightTop[1]) {
+			rightTop = tile;
+		}
+	}
+
+	leftTop[0] += brickLoc[0];
+	leftTop[1] += brickLoc[1];
+	rightTop[0] += brickLoc[0];
+	rightTop[1] += brickLoc[1];
+
+	return [leftTop, rightTop];
+}
+
 function chooseDropLocation(brickId) {
 	var dropLocations = getAllPossibleDropLocations(brickId);
 
-	/* Just find the lowest location possible: */
-	var best = 0;
+	var bestRank = 0;
+	var bestId = -1;
+
 	for (var i = 0; i < dropLocations.length; i++) {
+		var rank = 0;
+
 		if (dropLocations[i][1] < dropLocations[best][1]) {
 			best = i;
 		}
