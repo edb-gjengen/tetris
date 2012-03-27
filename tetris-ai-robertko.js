@@ -6,7 +6,7 @@ var ACTION_DROP = 4;
 var game;
 
 function getAllPossibleDropLocations(brickId) {
-	var dropLocations = [[game.width/2,game.height+1,0]];
+	var dropLocations = [];
 
 	// Go as far down as possible:
 	var goDown = function(x, y, rot) {
@@ -63,17 +63,41 @@ function getBoundsOfABrick(brickId, brickLoc, brickRot) {
 	return [leftTop, rightTop];
 }
 
+function rankHeight(brickId, dropLocation) {
+	var shape = game.brickShape(brickId, dropLocation[2]);
+	
+	// find the lowest point:
+	var lowest = shape[0][1] + dropLocation[1];
+	var highest = shape[0][1] + dropLocation[1];
+	
+	for (var i = 1; i < 4; i++) {
+		lowest = Math.min(lowest, shape[i][1]+dropLocation[1]);
+		highest = Math.max(highest, shape[i][1]+dropLocation[1]);
+	}
+	
+	// if highest is invalid, then return a very low rank:
+	if (highest >= game.height) {
+		return -1000;
+	}
+	
+	return game.height - (Math.pow(lowest, 2) / game.height);
+}
+
 function chooseDropLocation(brickId) {
 	var dropLocations = getAllPossibleDropLocations(brickId);
 
 	var bestRank = 0;
-	var bestId = 0;
+	var bestId = -1;
 
 	for (var i = 0; i < dropLocations.length; i++) {
 		var rank = 0;
 
-		if (dropLocations[i][1] < dropLocations[bestId][1]) {
+		rank += rankHeight(brickId, dropLocations[i]);
+		
+		/* Check if the rank is better than current best: */
+		if (bestId == -1 || rank > bestRank) {
 			bestId = i;
+			bestRank = rank;
 		}
 	}
 
