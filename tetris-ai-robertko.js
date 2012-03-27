@@ -67,17 +67,17 @@ function chooseDropLocation(brickId) {
 	var dropLocations = getAllPossibleDropLocations(brickId);
 
 	var bestRank = 0;
-	var bestId = -1;
+	var bestId = 0;
 
 	for (var i = 0; i < dropLocations.length; i++) {
 		var rank = 0;
 
-		if (dropLocations[i][1] < dropLocations[best][1]) {
-			best = i;
+		if (dropLocations[i][1] < dropLocations[bestId][1]) {
+			bestId = i;
 		}
 	}
 
-	return dropLocations[best];
+	return dropLocations[bestId];
 }
 
 function chooseAction(dropLocation) {
