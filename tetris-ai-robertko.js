@@ -46,11 +46,11 @@ function getBoundsOfABrick(brickId, brickLoc, brickRot) {
 	for (var i = 1; i < shape.length; i++) {
 		var tile = shape[i];
 
-		if (tile[0] < leftTop[0] || tile[1] > leftTop[1]) {
+		if (tile[0] < leftTop[0] || (tile[0] == leftTop[0] && tile[1] > leftTop[1])) {
 			leftTop = tile;
 		}
 		
-		if (tile[0] > rightTop[0] || tile[1] > rightTop[1]) {
+		if (tile[0] > rightTop[0] || (tile[0] == rightTop[0] && tile[1] > rightTop[1])) {
 			rightTop = tile;
 		}
 	}
@@ -61,6 +61,26 @@ function getBoundsOfABrick(brickId, brickLoc, brickRot) {
 	rightTop[1] += brickLoc[1];
 
 	return [leftTop, rightTop];
+}
+
+function getLowestTiles(brickId, brickLoc, brickRot) {
+	var shape = game.brickShape(brickId, brickRot);
+	var bounds = getBoundsOfABrick(brickId, brickLoc, brickRot);
+	var width = bounds[1][0] - bounds[0][0] + 1;
+	var lowestTiles = Array(width);
+	
+	for (var i = 0; i < width; i++) {
+		lowestTiles[i] = game.height;
+	}
+	
+	for (var i = 0; i < 4; i++) {
+		var x = shape[i][0] + brickLoc[0] - bounds[0][0];
+		var y = shape[i][1] + brickLoc[1];
+		
+		lowestTiles[x] = Math.min(lowestTiles[x], y);
+	}
+	
+	return lowestTiles;
 }
 
 function rankHeight(brickId, dropLocation) {
@@ -83,6 +103,28 @@ function rankHeight(brickId, dropLocation) {
 	return game.height - (Math.pow(lowest, 2) / game.height);
 }
 
+function rankAmountHoles(brickId, dropLocation) {
+	var bounds = getBoundsOfABrick(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
+	var lowestTiles = getLowestTiles(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
+	
+	var totalRankBonus = 0;
+	
+	for (var i = 0; i < lowestTiles.length; i++) {
+		// for each row check how many empty tiles there are right under:
+		var x = bounds[0][0] + i;
+		var y = lowestTiles[i] - 1;
+		while (y >= 0) {
+			console.log("drop:" +dropLocation +", bounds: " +bounds +", x: " +x);
+			if (game.board[x][y] == 0) {
+				totalRankBonus -= 1;
+			}
+			y--;
+		}
+	}
+	
+	return totalRankBonus;
+}
+
 function chooseDropLocation(brickId) {
 	var dropLocations = getAllPossibleDropLocations(brickId);
 
@@ -93,6 +135,7 @@ function chooseDropLocation(brickId) {
 		var rank = 0;
 
 		rank += rankHeight(brickId, dropLocations[i]);
+		rank += rankAmountHoles(brickId, dropLocations[i]);
 		
 		/* Check if the rank is better than current best: */
 		if (bestId == -1 || rank > bestRank) {
