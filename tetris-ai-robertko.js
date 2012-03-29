@@ -1,3 +1,4 @@
+var ACTION_NOTHING = 0;
 var ACTION_LEFT = 1;
 var ACTION_RIGHT = 2;
 var ACTION_ROTATE = 3;
@@ -14,43 +15,36 @@ function getAllPossibleDropLocations(brickId) {
 		while (game.isValidBrickLoc(brickId, [x, y - counter], rot)) {
 			counter++;
 		}
-
-		if (counter == 0 && y > 0) {
-			return;
+		
+		if (game.isValidBrickLoc(brickId, [x, y - counter + 1], rot)) {
+			dropLocations.push([x,y - counter + 1, rot]);
 		}
-
-		if (y - counter + 1 > 10) {
-			console.log("I will fail!");
-		}
-
-		dropLocations.push([x,y - counter+1,rot]);
 	}
 
 	// For each of the four rotations:
 	for (var i = 0; i < 4; i++) {
+		var x = game.currentBrickLoc[0];
+		var y = game.currentBrickLoc[1];
+
 		// Try to go as far left as possible:
 		var counter = 0;
-		while(game.isValidBrickLoc(brickId, [game.currentBrickLoc[0]-counter,game.currentBrickLoc[1]], i)) {
-			goDown(game.currentBrickLoc[0]-counter, game.currentBrickLoc[1], i);
+		while (game.isValidBrickLoc(brickId, [x - counter, y], i)) {
+			goDown(x - counter, y, i);
 			counter++;
 		}
 
 		// Try to go as far right as possible:
-		var counter = 0;
-		do {
-			goDown(game.currentBrickLoc[0]+counter, game.currentBrickLoc[1], i);
+		var counter = 1;
+		while (game.isValidBrickLoc(brickId, [x + counter, y], i)) {
+			goDown(x + counter, y, i);
 			counter++;
-		} while(game.isValidBrickLoc(brickId, [game.currentBrickLoc[0]+counter,game.currentBrickLoc[1]], i));
+		}
 	}
 
 	return dropLocations;
 }
 
 function getBoundsOfABrick(brickId, brickLoc, brickRot) {
-	if (brickLoc[0] == 0) {
-		console.log("Brace yourself - the 'I' is coming!");
-	}
-
 	var shape = game.brickShape(brickId, brickRot);
 
 	var leftTop = shape[0].slice(0);
@@ -102,10 +96,12 @@ function rankHeight(brickId, dropLocation) {
 	// find the lowest point:
 	var lowest = shape[0][1] + dropLocation[1];
 	var highest = shape[0][1] + dropLocation[1];
+	var sum = shape[0][1] + dropLocation[1];
 	
 	for (var i = 1; i < 4; i++) {
 		lowest = Math.min(lowest, shape[i][1]+dropLocation[1]);
 		highest = Math.max(highest, shape[i][1]+dropLocation[1]);
+		sum += shape[i][1] + dropLocation[1];
 	}
 	
 	// if highest is invalid, then return a very low rank:
@@ -113,23 +109,27 @@ function rankHeight(brickId, dropLocation) {
 		return -1000;
 	}
 	
-	return game.height - (Math.pow(lowest, 2) / game.height);
+	//return game.height - (Math.pow(lowest, 2) / game.height);
+	return game.height - (Math.pow(sum/4.0, 2) / game.height);
+
 }
 
 function rankAmountHoles(brickId, dropLocation) {	
 	var bounds = getBoundsOfABrick(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
 	var lowestTiles = getLowestTiles(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
 
-	var totalRankBonus = 0;
-	
+	var currentMalus = 2;
+	var totalRankBonus = 0;	
 	for (var i = 0; i < lowestTiles.length; i++) {
 		// for each row check how many empty tiles there are right under:
 		var x = bounds[0][0] + i;
 		var y = lowestTiles[i] - 1;
-		console.log("brickId: " +brickId +", drop:" +dropLocation +", bounds: " +bounds +", x: " +x);
 		while (y >= 0) {
 			if (game.board[x][y] == 0) {
-				totalRankBonus -= 1;
+				totalRankBonus -= currentMalus;
+				currentMalus *= 1.2;
+			} else {
+				currentMalus *= 0.6;
 			}
 			y--;
 		}
@@ -140,6 +140,10 @@ function rankAmountHoles(brickId, dropLocation) {
 
 function chooseDropLocation(brickId) {
 	var dropLocations = getAllPossibleDropLocations(brickId);
+
+	if (dropLocations.length == 0) {
+		return null;
+	}
 
 	var bestRank = 0;
 	var bestId = -1;
@@ -157,10 +161,15 @@ function chooseDropLocation(brickId) {
 		}
 	}
 
+	console.log("brickId: " +brickId +", best drop rank: " +bestRank);
 	return dropLocations[bestId];
 }
 
 function chooseAction(dropLocation) {
+	if (dropLocation == null) {
+		return [ACTION_NOTHING, 0];
+	}
+
 	var dx = dropLocation[0] - game.currentBrickLoc[0];
 	var dy = dropLocation[1] - game.currentBrickLoc[1];
 	var dr = (dropLocation[2] - game.currentBrickRot + 4) % 4;
@@ -184,7 +193,8 @@ function doAction(action) {
 		game.rotateCurrentBrick();
 	} else if (action[0] == ACTION_DROP) {
 		game.hardDrop();	
-		/* do nothing. */
+	} else if (action[0] == ACTION_NOTHING) {
+		/* Do nothing. D'uh. */
 	}
 }
 
@@ -192,12 +202,14 @@ function startAI() {
 	var dropLocation = chooseDropLocation(game.currentBrickId);
 	var action = chooseAction(dropLocation);
 	doAction(action);
-
-	window.setTimeout(startAI, 50);
+	
+	if (!game.gameIsOver) {
+		window.setTimeout(startAI, 5);
+	}
 }
 
 $(document).ready(function() {
-	game = new TetrisGame("tetris-board");
+	game = new TetrisGame("tetris-board", "lines", "next-bricks");
 	game.startGame();
 	startAI();
 });

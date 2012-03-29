@@ -1,0 +1,40 @@
+<html>
+	<head>
+		<script src="jquery-1.7.1.js"></script>
+		<script src="utils.js"></script>
+		<script src="tetris-stats.js"></script>
+		<script src="tetris-canvas.js"></script>
+		<script src="tetris.js"></script>
+		<script src="tetris-ai-robertko.js"></script> 
+		
+		<style>
+			body {
+				font-family: Courier, "Courier New", monospace;
+			}
+			#tetris-board, #next-bricks {
+				background-color:black;
+				margin-left:auto;
+				margin-right:auto;
+			}
+			#lines {
+				font-size: 4em;
+				font-weight: bold;
+			}
+			#infobox {
+				text-align: center;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div><canvas id="tetris-board" height="720" width="480" /></div>
+		<div id="infobox" style="position:absolute;top:20px;left:520px;width:200px;">
+			<hr />
+			<p>Lines:<br /><span id="lines">0</span></p>
+			<hr />
+			<p>Next bricks:</p>
+			<div><canvas id="next-bricks" height="500px" width="100px" /></div>
+		</div>
+	</body>
+</html>
+
