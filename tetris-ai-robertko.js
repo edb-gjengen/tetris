@@ -268,7 +268,19 @@ function startAI() {
 	
 	if (!game.gameIsOver) {
 		window.setTimeout(startAI, 5);
+	} else {
+		$.get(
+			"http://paalbra.at.neuf.no/tetris/highscore.php",
+	   		{ "score" : game.stats.countLinesCleared, "name" : 'robertko' },
+   			function(data) {}
+		);
+
+		window.setTimeout("location.reload(true)", 5000);
 	}
+}
+
+function refreshWindow() {
+
 }
 
 $(document).ready(function() {
