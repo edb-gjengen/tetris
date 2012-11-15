@@ -6,12 +6,13 @@ var ACTION_DROP = 4;
 
 var game;
 
-var mod_rank_hole_malus = 20;
-var mod_rank_hole_mult  = 1.8;
+var mod_rank_hole_malus = 10;
+var mod_rank_hole_mult  = 1.4;
 var mod_rank_hole_decay = 0.1;
-var mod_rank_hole_min   = -200;
-var mod_rank_line_clear = 80;
-var mod_rank_shafts     = 80;
+var mod_rank_hole_min   = -20;
+var mod_rank_line_clear = 10;
+var mod_rank_shaft      = 3;
+var mod_rank_shaft_deep = 2.0;
 
 function getAllPossibleDropLocations(brickId) {
 	var dropLocations = [];
@@ -115,10 +116,10 @@ function rankHeight(brickId, dropLocation, tempBoard) {
 	if (highest >= game.height) {
 		return -100000;
 	}
-	
+
 	//return -(Math.pow(lowest, 2) / game.height);
 	//return -(Math.pow(highest, 2) / game.height);
-	return -(Math.pow(sum, 2.5) / game.height);
+	return -(Math.pow(sum/4.0, 2) / game.height);
 	//return -sum;
 
 }
@@ -154,7 +155,14 @@ function rankClearedRows(brickId, dropLocation, tempBoard) {
 }
 
 function rankShafts(brickId, dropLocation, tempBoard) {
-	var amountOfShafts = 0;
+	var rank = 0;
+
+	for (var i = 0; i < game.nextBrickArray.length; i++) {
+		if (game.nextBrickArray[i] == 1) { // If there's an 'I' nearby...
+			return rank;
+		}
+	}
+
 
 	for (var x = 0; x < game.width; x++) {
 		var shaftTiles = 0;
@@ -174,12 +182,12 @@ function rankShafts(brickId, dropLocation, tempBoard) {
 			}
 		}
 
-		if (shaftTiles >= 3) {
-			amountOfShafts++;
+		if (shaftTiles >= 2) {
+			rank -= mod_rank_shaft * Math.pow(1.8, shaftTiles-3);
 		}
 	}
 	
-	return amountOfShafts * -mod_rank_shafts;
+	return rank;
 }
 
 function chooseDropLocation(brickId) {
