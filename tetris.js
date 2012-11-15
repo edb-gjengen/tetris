@@ -271,14 +271,16 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		return false;
 	}
 
-	this.getFilledLines = function() {
+	this.getFilledLines = function(b) {
+		if (typeof(b) === 'undefined') b = this.board;
+
 		var lines = [];
 
-		for (var y = 0; y < this.height; y++) {
+		for (var y = 0; y < b[0].length; y++) {
 			var isLineFilled = true;
 
-			for (var x = 0; x < this.width; x++) {
-				if (this.board[x][y] == 0) {
+			for (var x = 0; x < b.length; x++) {
+				if (b[x][y] == 0) {
 					isLineFilled = false;		
 				}
 			}

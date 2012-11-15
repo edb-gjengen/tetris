@@ -6,6 +6,13 @@ var ACTION_DROP = 4;
 
 var game;
 
+var mod_rank_hole_malus = 20;
+var mod_rank_hole_mult  = 1.8;
+var mod_rank_hole_decay = 0.1;
+var mod_rank_hole_min   = -200;
+var mod_rank_line_clear = 80;
+var mod_rank_shafts     = 80;
+
 function getAllPossibleDropLocations(brickId) {
 	var dropLocations = [];
 
@@ -90,7 +97,7 @@ function getLowestTiles(brickId, brickLoc, brickRot) {
 	return lowestTiles;
 }
 
-function rankHeight(brickId, dropLocation) {
+function rankHeight(brickId, dropLocation, tempBoard) {
 	var shape = game.brickShape(brickId, dropLocation[2]);
 	
 	// find the lowest point:
@@ -106,41 +113,78 @@ function rankHeight(brickId, dropLocation) {
 	
 	// if highest is invalid, then return a very low rank:
 	if (highest >= game.height) {
-		return -1000;
+		return -100000;
 	}
 	
-	//return game.height - (Math.pow(lowest, 2) / game.height);
-	return game.height - (Math.pow(sum/4.0, 2) / game.height);
+	//return -(Math.pow(lowest, 2) / game.height);
+	//return -(Math.pow(highest, 2) / game.height);
+	return -(Math.pow(sum, 2.5) / game.height);
+	//return -sum;
 
 }
 
-function rankAmountHoles(brickId, dropLocation) {	
+function rankAmountHoles(brickId, dropLocation, tempBoard) {	
 	var bounds = getBoundsOfABrick(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
 	var lowestTiles = getLowestTiles(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
 
-	var currentMalus = 2;
 	var totalRankBonus = 0;	
-	for (var i = 0; i < lowestTiles.length; i++) {
+	for (var i = 0; i < lowestTiles.length; i++) {	
+		var currentMalus = mod_rank_hole_malus;
+
 		// for each row check how many empty tiles there are right under:
 		var x = bounds[0][0] + i;
 		var y = lowestTiles[i] - 1;
 		while (y >= 0) {
 			if (game.board[x][y] == 0) {
 				totalRankBonus -= currentMalus;
-				currentMalus *= 1.2;
+				currentMalus *= mod_rank_hole_mult;
 			} else {
-				currentMalus *= 0.6;
+				currentMalus *= mod_rank_hole_decay;
 			}
 			y--;
 		}
 	}
 	
-	return totalRankBonus;
+	return totalRankBonus > mod_rank_hole_min ? totalRankBonus : mod_rank_hole_min;
+}
+
+function rankClearedRows(brickId, dropLocation, tempBoard) {
+	var linesCleared = game.getFilledLines(tempBoard).length;
+	return linesCleared * mod_rank_line_clear;
+}
+
+function rankShafts(brickId, dropLocation, tempBoard) {
+	var amountOfShafts = 0;
+
+	for (var x = 0; x < game.width; x++) {
+		var shaftTiles = 0;
+		for (var y = game.height - 1; y >= 0; y--) {
+			if (tempBoard[x][y] != 0) {
+				break;
+			}
+
+			if (shaftTiles > 0) {
+				shaftTiles++;
+				continue;
+			}
+
+			if ((x-1 < 0 || tempBoard[x-1][y] != 0) && (x+1 >= game.width || tempBoard[x+1][y] != 0)) {
+				shaftTiles++;
+				continue;
+			}
+		}
+
+		if (shaftTiles >= 3) {
+			amountOfShafts++;
+		}
+	}
+	
+	return amountOfShafts * -mod_rank_shafts;
 }
 
 function chooseDropLocation(brickId) {
 	var dropLocations = getAllPossibleDropLocations(brickId);
-
+	
 	if (dropLocations.length == 0) {
 		return null;
 	}
@@ -149,11 +193,23 @@ function chooseDropLocation(brickId) {
 	var bestId = -1;
 
 	for (var i = 0; i < dropLocations.length; i++) {
+		var tempBoard = $.extend(true, [], game.board);
+		var shape = game.brickShape(brickId, dropLocations[i][2]);
+	
+		for (var j = 0; j < shape.length; j++) {
+			var x = dropLocations[i][0]+shape[j][0];
+			var y = dropLocations[i][1]+shape[j][1];
+	
+			tempBoard[x][y] = game.bricks[brickId];
+		}
+	
 		var rank = 0;
 
-		rank += rankHeight(brickId, dropLocations[i]);
-		rank += rankAmountHoles(brickId, dropLocations[i]);
-		
+		rank += rankHeight(brickId, dropLocations[i], tempBoard);
+		rank += rankAmountHoles(brickId, dropLocations[i], tempBoard);
+		rank += rankClearedRows(brickId, dropLocations[i], tempBoard);
+		rank += rankShafts(brickId, dropLocations[i], tempBoard);
+
 		/* Check if the rank is better than current best: */
 		if (bestId == -1 || rank > bestRank) {
 			bestId = i;
@@ -161,7 +217,6 @@ function chooseDropLocation(brickId) {
 		}
 	}
 
-	console.log("brickId: " +brickId +", best drop rank: " +bestRank);
 	return dropLocations[bestId];
 }
 
