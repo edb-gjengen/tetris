@@ -236,11 +236,10 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			}
 
 			this.board[x][y] = this.bricks[this.currentBrickId];
-			this.currentBrickId = 0;
-			this.currentBrickLoc = 0;
-			this.currentBrickRot = 0;
 		}
-
+		this.currentBrickId = 0;
+		this.currentBrickLoc = 0;
+		this.currentBrickRot = 0;
 	}
 
 	this.moveCurrentBrickDown = function() {
