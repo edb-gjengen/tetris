@@ -221,7 +221,10 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	}
 
 	this.integrateCurrentIntoBoard = function () {
-		
+		if (this.currentBrickId == 0) {
+			return true;
+		}
+
 		var shape = this.brickShape(this.currentBrickId, this.currentBrickRot);
 		for (var i = 0; i < 4; i++) {
 			var x = this.currentBrickLoc[0]+shape[i][0];
@@ -233,6 +236,9 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			}
 
 			this.board[x][y] = this.bricks[this.currentBrickId];
+			this.currentBrickId = 0;
+			this.currentBrickLoc = 0;
+			this.currentBrickRot = 0;
 		}
 
 	}
