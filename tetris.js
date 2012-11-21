@@ -172,6 +172,8 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	}
 
 	this.isValidBrickLoc = function(brickId, brickLoc, brickRot) {
+		if (brickId == 0) return false;
+
 		var shape = this.brickShape(brickId, brickRot);
 		
 		for (var i = 0; i < 4; i++) {
