@@ -5,14 +5,16 @@ var ACTION_ROTATE = 3;
 var ACTION_DROP = 4;
 
 var game;
+var version = "0.2";
 
-var mod_rank_hole_malus = 10;
-var mod_rank_hole_mult  = 1.4;
-var mod_rank_hole_decay = 0.1;
-var mod_rank_hole_min   = -20;
-var mod_rank_line_clear = 10;
-var mod_rank_shaft      = 3;
-var mod_rank_shaft_deep = 2.0;
+var mod_rank_height_mul  = 7;
+var mod_rank_hole_malus  = 15;
+var mod_rank_hole_mult   = 1.4;
+var mod_rank_hole_decay  = 0.1;
+var mod_rank_hole_min    = -20;
+var mod_rank_line_clear  = 10;
+var mod_rank_shaft       = 3;
+var mod_rank_shaft_deep  = 2.5;
 
 function getAllPossibleDropLocations(brickId) {
 	var dropLocations = [];
@@ -101,7 +103,7 @@ function getLowestTiles(brickId, brickLoc, brickRot) {
 function rankHeight(brickId, dropLocation, tempBoard) {
 	var shape = game.brickShape(brickId, dropLocation[2]);
 	
-	// find the lowest point:
+	// find the brick points:
 	var lowest = shape[0][1] + dropLocation[1];
 	var highest = shape[0][1] + dropLocation[1];
 	var sum = shape[0][1] + dropLocation[1];
@@ -117,11 +119,22 @@ function rankHeight(brickId, dropLocation, tempBoard) {
 		return -100000;
 	}
 
+	var old_highest = -1;
+
+	// find the last highest point on board:
+	for (var x = 0; x < game.width && old_highest < 0; x++) {
+		for (var y = game.height-1; y <= 0 && old_highest < 0; y--) {
+			if (game.board[x][y] != 0) {
+				old_highest = y;
+			}
+		}
+	}
+
+
 	//return -(Math.pow(lowest, 2) / game.height);
 	//return -(Math.pow(highest, 2) / game.height);
-	return -(Math.pow(sum/4.0, 2) / game.height);
-	//return -sum;
-
+	//return -(Math.pow(sum/4.0, 2) / game.height);
+	return - mod_rank_height_mul * (highest - old_highest);
 }
 
 function rankAmountHoles(brickId, dropLocation, tempBoard) {	
@@ -183,7 +196,7 @@ function rankShafts(brickId, dropLocation, tempBoard) {
 		}
 
 		if (shaftTiles >= 2) {
-			rank -= mod_rank_shaft * Math.pow(1.8, shaftTiles-3);
+			rank -= mod_rank_shaft * Math.pow(mod_rank_shaft_deep, shaftTiles-3);
 		}
 	}
 	
@@ -271,7 +284,7 @@ function startAI() {
 	} else {
 		$.post(
 			"http://paalbra.at.neuf.no/tetris/highscore.php",
-	   		{ score : game.stats.countLinesCleared, name : 'robertko' },
+	   		{ score : game.stats.countLinesCleared, name : 'robertko_' + version},
    			function(data) {
 				console.info(data);
 			}
