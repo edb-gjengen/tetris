@@ -203,13 +203,7 @@ function rankShafts(brickId, dropLocation, tempBoard) {
 	return rank;
 }
 
-function chooseDropLocation(brickId) {
-	var dropLocations = getAllPossibleDropLocations(brickId);
-	
-	if (dropLocations.length == 0) {
-		return null;
-	}
-
+function rank(brickId, dropLocations) {
 	var bestRank = 0;
 	var bestId = -1;
 
@@ -237,6 +231,20 @@ function chooseDropLocation(brickId) {
 			bestRank = rank;
 		}
 	}
+
+	return [ bestId, bestRank ];
+}
+
+function chooseDropLocation(brickId) {
+	var dropLocations = getAllPossibleDropLocations(brickId);
+	
+	if (dropLocations.length == 0) {
+		return null;
+	}
+
+	var best = rank(brickId, dropLocations);
+	var bestId = best[0];
+	var bestRank = best[1];
 
 	return dropLocations[bestId];
 }
