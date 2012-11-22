@@ -147,14 +147,22 @@ function rankAmountHoles(brickId, dropLocation, tempBoard) {
 		var currentMalus = mod_rank_hole_malus;
 
 		// for each row check how many empty tiles there are right under:
+		var isStarted = false;
+
 		var x = bounds[0][0] + i;
-		var y = lowestTiles[i] - 1;
+		var y = game.height - 1;
 		while (y >= 0) {
-			if (game.board[x][y] == 0) {
-				totalRankBonus -= currentMalus;
-				currentMalus *= mod_rank_hole_mult;
-			} else {
-				currentMalus *= mod_rank_hole_decay;
+			if (tempBoard[x][y] != 0) {
+				isStarted = true;
+			}
+
+			if (isStarted) {
+				if (tempBoard[x][y] == 0) {
+					totalRankBonus -= currentMalus;
+					currentMalus *= mod_rank_hole_mult;
+				} else {
+					currentMalus *= mod_rank_hole_decay;
+				}
 			}
 			y--;
 		}

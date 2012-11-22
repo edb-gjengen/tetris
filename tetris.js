@@ -279,16 +279,16 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		return false;
 	}
 
-	this.getFilledLines = function(b) {
-		if (typeof(b) === 'undefined') b = this.board;
+	this.getFilledLines = function(board) {
+		if (typeof(board) === 'undefined') board = this.board;
 
 		var lines = [];
 
-		for (var y = 0; y < b[0].length; y++) {
+		for (var y = 0; y < board[0].length; y++) {
 			var isLineFilled = true;
 
-			for (var x = 0; x < b.length; x++) {
-				if (b[x][y] == 0) {
+			for (var x = 0; x < board.length; x++) {
+				if (board[x][y] == 0) {
 					isLineFilled = false;		
 				}
 			}
@@ -300,7 +300,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		return lines;
 	}
 
-	this.removeLine = function(linenr) {
+	this.removeLine = function(board, linenr) {
 		if (typeof(linenr) === 'undefined') {
 			return;
 		}
@@ -308,13 +308,13 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		for (var y = parseInt(linenr); y < this.height; y++) {
 			for (var x = 0; x < this.width; x++) {
 				if (y+1 >= this.height) {
-					this.board[x][y] = 0;
+					board[x][y] = 0;
 				} else {
-					this.board[x][y] = this.board[x][y+1];
+					board[x][y] = board[x][y+1];
 				}
 			}
 		}
-	}	
+	}
 
 	this.updateLineCounter = function() {
 		if (this.lineCounterElement != 0) {
@@ -330,9 +330,9 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		}
 
 
-		var filledLines = this.getFilledLines();
+		var filledLines = this.getFilledLines(this.board);
 		for (var i = 0; i < filledLines.length; i++) {
-			this.removeLine(filledLines[i]-i);
+			this.removeLine(this.board, filledLines[i]-i);
 		}
 
 		this.stats.linesCleared(filledLines.length);
