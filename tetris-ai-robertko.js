@@ -5,47 +5,48 @@ var ACTION_ROTATE = 3;
 var ACTION_DROP = 4;
 
 var game;
-var version = "0.2";
+var version = "0.3";
 
-var mod_rank_height_mul  = 7;
-var mod_rank_hole_malus  = 15;
-var mod_rank_hole_mult   = 1.4;
-var mod_rank_hole_decay  = 0.1;
-var mod_rank_hole_min    = -20;
-var mod_rank_line_clear  = 10;
-var mod_rank_shaft       = 3;
-var mod_rank_shaft_deep  = 2.5;
+var mod_rank_height_mul   = 7;
+var mod_rank_hole_malus   = 15;
+var mod_rank_hole_mult    = 1.4;
+var mod_rank_hole_decay   = 0.1;
+var mod_rank_hole_min     = -20;
+var mod_rank_line_clear   = 10;
+var mod_rank_shaft        = 3;
+var mod_rank_shaft_deep   = 2.5;
+var mod_rank_shaft_ibonus = 0;
 
-function getAllPossibleDropLocations(brickId) {
+function getAllPossibleDropLocations(brickId, brickLoc, brickRot, board) {
 	var dropLocations = [];
 
 	// Go as far down as possible:
 	var goDown = function(x, y, rot) {
 		var counter = 0;
-		while (game.isValidBrickLoc(brickId, [x, y - counter], rot)) {
+		while (game.isValidBrickLoc(brickId, [x, y - counter], rot, board)) {
 			counter++;
 		}
 		
-		if (game.isValidBrickLoc(brickId, [x, y - counter + 1], rot)) {
+		if (game.isValidBrickLoc(brickId, [x, y - counter + 1], rot, board)) {
 			dropLocations.push([x,y - counter + 1, rot]);
 		}
 	}
 
 	// For each of the four rotations:
 	for (var i = 0; i < 4; i++) {
-		var x = game.currentBrickLoc[0];
-		var y = game.currentBrickLoc[1];
+		var x = brickLoc[0];
+		var y = brickLoc[1];
 
 		// Try to go as far left as possible:
 		var counter = 0;
-		while (game.isValidBrickLoc(brickId, [x - counter, y], i)) {
+		while (game.isValidBrickLoc(brickId, [x - counter, y], i, board)) {
 			goDown(x - counter, y, i);
 			counter++;
 		}
 
 		// Try to go as far right as possible:
 		var counter = 1;
-		while (game.isValidBrickLoc(brickId, [x + counter, y], i)) {
+		while (game.isValidBrickLoc(brickId, [x + counter, y], i, board)) {
 			goDown(x + counter, y, i);
 			counter++;
 		}
@@ -172,7 +173,7 @@ function rankShafts(brickId, dropLocation, tempBoard) {
 
 	for (var i = 0; i < game.nextBrickArray.length; i++) {
 		if (game.nextBrickArray[i] == 1) { // If there's an 'I' nearby...
-			return rank;
+			return mod_rank_shaft_ibonus;
 		}
 	}
 
@@ -235,8 +236,8 @@ function rank(brickId, dropLocations) {
 	return [ bestId, bestRank ];
 }
 
-function chooseDropLocation(brickId) {
-	var dropLocations = getAllPossibleDropLocations(brickId);
+function chooseDropLocation(brickId, brickLoc, brickRot, board) {
+	var dropLocations = getAllPossibleDropLocations(brickId, brickLoc, brickRot, board);
 	
 	if (dropLocations.length == 0) {
 		return null;
@@ -283,14 +284,14 @@ function doAction(action) {
 }
 
 function startAI() {
-	var dropLocation = chooseDropLocation(game.currentBrickId);
+	var dropLocation = chooseDropLocation(game.currentBrickId, game.currentBrickLoc, game.currentBrickRot, game.board);
 	var action = chooseAction(dropLocation);
 	doAction(action);
 	
 	if (!game.gameIsOver) {
 		window.setTimeout(startAI, 5);
 	} else {
-		$.post(
+		/*$.post(
 			"http://paalbra.at.neuf.no/tetris/highscore.php",
 	   		{ score : game.stats.countLinesCleared, name : 'robertko_' + version},
    			function(data) {
@@ -298,7 +299,7 @@ function startAI() {
 			}
 		).error(function(data) {
 			console.warn(data);		
-		});
+		});*/
 
 		window.setTimeout("location.reload()", 3000);
 	}

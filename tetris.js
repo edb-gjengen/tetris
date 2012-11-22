@@ -171,8 +171,9 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		}
 	}
 
-	this.isValidBrickLoc = function(brickId, brickLoc, brickRot) {
+	this.isValidBrickLoc = function(brickId, brickLoc, brickRot, board) {
 		if (brickId == 0) return false;
+		if (typeof(board) === 'undefined') board = this.board;
 
 		var shape = this.brickShape(brickId, brickRot);
 		
@@ -184,7 +185,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 			if (y < 0) { return false; }
 			if (y >= this.height) { continue; }
 			
-			if (this.board[x][y] != 0) {
+			if (board[x][y] != 0) {
 				return false;
 			}
 		}
@@ -300,7 +301,7 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	}
 
 	this.removeLine = function(linenr) {
-		if (linenr == undefined) {
+		if (typeof(linenr) === 'undefined') {
 			return;
 		}
 
