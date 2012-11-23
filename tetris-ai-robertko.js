@@ -341,7 +341,7 @@ function startAI() {
 	if (!game.gameIsOver) {
 		window.setTimeout(startAI, 10);
 	} else {
-		/*$.post(
+		$.post(
 			"http://paalbra.at.neuf.no/tetris/highscore.php",
 	   		{ score : game.stats.countLinesCleared, name : 'robertko_' + version},
    			function(data) {
@@ -349,7 +349,7 @@ function startAI() {
 			}
 		).error(function(data) {
 			console.warn(data);		
-		});*/
+		});
 
 		window.setTimeout("location.reload()", 3000);
 	}
