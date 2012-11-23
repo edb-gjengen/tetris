@@ -5,7 +5,7 @@ var ACTION_ROTATE = 3;
 var ACTION_DROP = 4;
 
 var game;
-var version = "0.3";
+var version = "0.4";
 
 var mod_rank_height_mul   = 0.5;
 var mod_rank_hole_malus   = 16;
@@ -262,22 +262,20 @@ function chooseBestRank(brickId, board, dropLocations, level) {
 		rank += rankShafts(brickId, dropLocations[i], tempBoard);
 		rank += rankHorizontal(tempBoard);
 
+
+		if (level < 1) {
+			nextBrickId = game.peekNextBrick();
+			nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, tempBoard);
+			nextRank = chooseBestRank(nextBrickId, tempBoard, nextLevelDropLocations, level + 1);
+			rank += nextRank[1];
+		}
 	
 		/* Check if the rank is better than current best: */
 		if (bestId == -1 || rank > bestRank) {
 			bestId = i;
 			bestRank = rank;
 			bestBoard = tempBoard;
-		}
-
-		if (level < 1) {
-			nextBrickId = game.peekNextBrick();
-			//nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, tempBoard);
-			//nextRank = chooseBestRank(nextBrickId, tempBoard, nextLevelDropLocations, level + 1);
-			//rank += nextRank[1];
-	}
-
-
+		}	
 	}
 
 	return [ bestId, bestRank ];
