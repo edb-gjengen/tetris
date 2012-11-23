@@ -17,6 +17,9 @@ var mod_rank_shaft_deep   = 2.5;
 var mod_rank_shaft_ibonus = 0;
 var mod_rank_horizontal   = 1.5;
 
+var settings_level_depth     = 1;
+var settings_level_precision = 20;
+
 var bestDropLocation = null;
  
 function getAllPossibleDropLocations(brickId, brickLoc, brickRot, board) {
@@ -267,10 +270,10 @@ function chooseBestRank(brickId, board, dropLocations, level) {
 		return b[1] - a[1];
 	});
 
-	ranking = ranking.slice(0,15);
-	if (level < 1) {
+	ranking = ranking.slice(0, Math.min(settings_level_precision, ranking.length));
+	if (level < settings_level_depth) {
 		for (var i = 0; i < ranking.length; i++) {
-			nextBrickId = game.peekNextBrick();
+			nextBrickId = game.peekNextBrick(level);
 			nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, ranking[i][2]);
 			nextRank = chooseBestRank(nextBrickId, ranking[i][2], nextLevelDropLocations, level + 1);
 			ranking[i][1] += nextRank[1];

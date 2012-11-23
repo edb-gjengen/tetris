@@ -122,8 +122,9 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		return brick;
 	}
 
-	this.peekNextBrick = function() {
-		return this.nextBrickArray[this.nextBrickArrayIndex];
+	this.peekNextBrick = function(offset) {
+		if (typeof(offset) === 'undefined') offset = 0;
+		return this.nextBrickArray[(this.nextBrickArrayIndex + offset) % 5];
 	}
 
 	this.getNextCurrentBrick = function() {
