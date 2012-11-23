@@ -122,6 +122,10 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 		return brick;
 	}
 
+	this.peekNextBrick = function() {
+		return this.nextBrickArray[this.nextBrickArrayIndex];
+	}
+
 	this.getNextCurrentBrick = function() {
 		if (! this.gameIsOver) {
 			this.currentBrickId = this.getNextBrick();

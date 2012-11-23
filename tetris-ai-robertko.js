@@ -7,16 +7,18 @@ var ACTION_DROP = 4;
 var game;
 var version = "0.3";
 
-var mod_rank_height_mul   = 7;
+var mod_rank_height_mul   = 2;
 var mod_rank_hole_malus   = 15;
-var mod_rank_hole_mult    = 1.4;
-var mod_rank_hole_decay   = 0.1;
-var mod_rank_hole_min     = -20;
-var mod_rank_line_clear   = 10;
-var mod_rank_shaft        = 3;
-var mod_rank_shaft_deep   = 2.5;
+var mod_rank_hole_mult    = 1.2;
+var mod_rank_hole_decay   = 0.2;
+var mod_rank_line_clear   = 8;
+var mod_rank_shaft        = 5;
+var mod_rank_shaft_deep   = 2.0;
 var mod_rank_shaft_ibonus = 0;
+var mod_rank_horizontal   = 1;
 
+var bestDropLocation = null;
+ 
 function getAllPossibleDropLocations(brickId, brickLoc, brickRot, board) {
 	var dropLocations = [];
 
@@ -101,7 +103,7 @@ function getLowestTiles(brickId, brickLoc, brickRot) {
 	return lowestTiles;
 }
 
-function rankHeight(brickId, dropLocation, tempBoard) {
+function rankHeight(brickId, dropLocation, board) {
 	var shape = game.brickShape(brickId, dropLocation[2]);
 	
 	// find the brick points:
@@ -116,16 +118,17 @@ function rankHeight(brickId, dropLocation, tempBoard) {
 	}
 	
 	// if highest is invalid, then return a very low rank:
-	if (highest >= game.height) {
-		return -100000;
-	}
+	if (highest >= game.height)   return -100000;
+	if (highest >= game.height-2) return -1000;
+	if (highest >= game.height-4) return -500;
+	
 
 	var old_highest = -1;
 
 	// find the last highest point on board:
-	for (var x = 0; x < game.width && old_highest < 0; x++) {
-		for (var y = game.height-1; y <= 0 && old_highest < 0; y--) {
-			if (game.board[x][y] != 0) {
+	for (var y = game.height-1; y > 0 && old_highest < 0; y--) {
+		for (var x = 0; x < game.width && old_highest < 0; x++) {
+			if (board[x][y] != 0) {
 				old_highest = y;
 			}
 		}
@@ -135,44 +138,43 @@ function rankHeight(brickId, dropLocation, tempBoard) {
 	//return -(Math.pow(lowest, 2) / game.height);
 	//return -(Math.pow(highest, 2) / game.height);
 	//return -(Math.pow(sum/4.0, 2) / game.height);
-	return - mod_rank_height_mul * (highest - old_highest);
+	//return - Math.pow(highest/game.height, 2) * highest - mod_rank_height_mul * Math.max(0, highest - old_highest);
+	return - highest * mod_rank_hole_mult;
+
 }
 
-function rankAmountHoles(brickId, dropLocation, tempBoard) {	
-	var bounds = getBoundsOfABrick(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
-	var lowestTiles = getLowestTiles(brickId, [dropLocation[0], dropLocation[1]], dropLocation[2]);
-
+function rankAmountHoles(board) {	
 	var totalRankBonus = 0;	
-	for (var i = 0; i < lowestTiles.length; i++) {	
+	for (var x = 0; x < game.width; x++) {	
 		var currentMalus = mod_rank_hole_malus;
 
 		// for each row check how many empty tiles there are right under:
-		var isStarted = false;
-
-		var x = bounds[0][0] + i;
+		var isStarted   = false;
 		var y = game.height - 1;
-		while (y >= 0) {
-			if (tempBoard[x][y] != 0) {
-				isStarted = true;
-			}
 
+		while (y >= 0) {
 			if (isStarted) {
-				if (tempBoard[x][y] == 0) {
+				if (board[x][y] == 0) {
 					totalRankBonus -= currentMalus;
 					currentMalus *= mod_rank_hole_mult;
 				} else {
 					currentMalus *= mod_rank_hole_decay;
 				}
+			} else if (board[x][y] != 0) {
+				if (y > 0 && board[x][y-1] == 0) {
+					isStarted = true;
+				} else {
+					currentMalus *= mod_rank_hole_mult;
+				}
 			}
+
 			y--;
 		}
 	}
-	
-	return totalRankBonus > mod_rank_hole_min ? totalRankBonus : mod_rank_hole_min;
+	return totalRankBonus;
 }
 
-function rankClearedRows(brickId, dropLocation, tempBoard) {
-	var linesCleared = game.getFilledLines(tempBoard).length;
+function rankClearedRows(linesCleared) {
 	return linesCleared * mod_rank_line_clear;
 }
 
@@ -184,7 +186,6 @@ function rankShafts(brickId, dropLocation, tempBoard) {
 			return mod_rank_shaft_ibonus;
 		}
 	}
-
 
 	for (var x = 0; x < game.width; x++) {
 		var shaftTiles = 0;
@@ -212,14 +213,35 @@ function rankShafts(brickId, dropLocation, tempBoard) {
 	return rank;
 }
 
-function rank(brickId, dropLocations) {
+function rankHorizontal(board) {
+	totalRank = 0;
+
+	for (var y = 0; y < game.height; y++) {
+		for (var x = 1; x < game.width; x++) {
+			var bleft = board[x-1][y] != 0;
+			var bright = board[x][y] != 0;
+
+			if (bleft != bright) {
+				totalRank -= mod_rank_horizontal;
+			}
+		}
+	}
+
+	return totalRank;
+}
+
+function chooseBestRank(brickId, board, dropLocations, level) {
+	if (typeof(level) === 'undefined') level = 0;
+
 	var bestRank = 0;
 	var bestId = -1;
+	var bestBoard = null;
 
 	for (var i = 0; i < dropLocations.length; i++) {
-		var tempBoard = $.extend(true, [], game.board);
+		var tempBoard = $.extend(true, [], board);
 		var shape = game.brickShape(brickId, dropLocations[i][2]);
 	
+		// prepare tempBoard:
 		for (var j = 0; j < shape.length; j++) {
 			var x = dropLocations[i][0]+shape[j][0];
 			var y = dropLocations[i][1]+shape[j][1];
@@ -227,34 +249,53 @@ function rank(brickId, dropLocations) {
 			tempBoard[x][y] = game.bricks[brickId];
 		}
 	
+		var filledLines = game.getFilledLines(tempBoard);
+		for (var j = 0; j < filledLines.length; j++) {
+			game.removeLine(tempBoard, filledLines[j]-j);
+		}
+		var linesCleared = filledLines.length;
+
+		// rank!
 		var rank = 0;
 
-		rank += rankHeight(brickId, dropLocations[i], tempBoard);
-		rank += rankAmountHoles(brickId, dropLocations[i], tempBoard);
-		rank += rankClearedRows(brickId, dropLocations[i], tempBoard);
+		rank += rankHeight(brickId, dropLocations[i], game.board);
+		rank += rankAmountHoles(tempBoard);
+		//rank += rankClearedRows(linesCleared);
 		rank += rankShafts(brickId, dropLocations[i], tempBoard);
+		rank += rankHorizontal(tempBoard);
 
+	
 		/* Check if the rank is better than current best: */
 		if (bestId == -1 || rank > bestRank) {
 			bestId = i;
 			bestRank = rank;
+			bestBoard = tempBoard;
 		}
+	}
+
+	if (level < 1) {
+		//nextBrickId = game.peekNextBrick();
+		//nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, tempBoard);
+		//nextRank = chooseBestRank(nextBrickId, tempBoard, nextLevelDropLocations, level + 1);
+		//rank += nextRank[1];
 	}
 
 	return [ bestId, bestRank ];
 }
 
 function chooseDropLocation(brickId, brickLoc, brickRot, board) {
+	if (bestDropLocation !== null) return bestDropLocation;
+
 	var dropLocations = getAllPossibleDropLocations(brickId, brickLoc, brickRot, board);
-	
 	if (dropLocations.length == 0) {
 		return null;
 	}
 
-	var best = rank(brickId, dropLocations);
+	var best = chooseBestRank(brickId, board, dropLocations);
 	var bestId = best[0];
 	var bestRank = best[1];
 
+	bestDropLocation = dropLocations[bestId];
 	return dropLocations[bestId];
 }
 
@@ -278,14 +319,15 @@ function doAction(action) {
 		return;
 	}
 
-	if (action[0] == ACTION_LEFT) {
+	if (action[0] == ACTION_ROTATE) {
+		game.rotateCurrentBrick();
+	} else if (action[0] == ACTION_LEFT) {
 		game.moveCurrentBrickHorizontally(-1);
 	} else if (action[0] == ACTION_RIGHT) {
 		game.moveCurrentBrickHorizontally(1);
-	} else if (action[0] == ACTION_ROTATE) {
-		game.rotateCurrentBrick();
 	} else if (action[0] == ACTION_DROP) {
-		game.hardDrop();	
+		game.hardDrop();
+		bestDropLocation = null;
 	} else if (action[0] == ACTION_NOTHING) {
 		/* Do nothing. D'uh. */
 	}
@@ -297,7 +339,7 @@ function startAI() {
 	doAction(action);
 	
 	if (!game.gameIsOver) {
-		window.setTimeout(startAI, 5);
+		window.setTimeout(startAI, 10);
 	} else {
 		/*$.post(
 			"http://paalbra.at.neuf.no/tetris/highscore.php",
