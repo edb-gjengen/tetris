@@ -5,7 +5,7 @@ var ACTION_ROTATE = 3;
 var ACTION_DROP = 4;
 
 var game;
-var version = "0.4";
+var version = "0.5";
 
 var mod_rank_height_mul   = 0.5;
 var mod_rank_hole_malus   = 16;
@@ -231,9 +231,7 @@ function rankHorizontal(board) {
 function chooseBestRank(brickId, board, dropLocations, level) {
 	if (typeof(level) === 'undefined') level = 0;
 
-	var bestRank = 0;
-	var bestId = -1;
-	var bestBoard = null;
+	var ranking = [];
 
 	for (var i = 0; i < dropLocations.length; i++) {
 		var tempBoard = $.extend(true, [], board);
@@ -261,22 +259,30 @@ function chooseBestRank(brickId, board, dropLocations, level) {
 		rank += rankClearedRows(linesCleared);
 		rank += rankShafts(brickId, dropLocations[i], tempBoard);
 		rank += rankHorizontal(tempBoard);
-
-
-		if (level < 1) {
-			nextBrickId = game.peekNextBrick();
-			nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, tempBoard);
-			nextRank = chooseBestRank(nextBrickId, tempBoard, nextLevelDropLocations, level + 1);
-			rank += nextRank[1];
-		}
 	
-		/* Check if the rank is better than current best: */
-		if (bestId == -1 || rank > bestRank) {
-			bestId = i;
-			bestRank = rank;
-			bestBoard = tempBoard;
-		}	
+		ranking.push([i, rank, tempBoard]);
 	}
+
+	ranking.sort(function(a,b) {
+		return b[1] - a[1];
+	});
+
+	ranking = ranking.slice(0,15);
+	if (level < 1) {
+		for (var i = 0; i < ranking.length; i++) {
+			nextBrickId = game.peekNextBrick();
+			nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, ranking[i][2]);
+			nextRank = chooseBestRank(nextBrickId, ranking[i][2], nextLevelDropLocations, level + 1);
+			ranking[i][1] += nextRank[1];
+		}
+	}
+
+	ranking.sort(function(a,b) {
+		return b[1] - a[1];
+	});
+
+	bestId = ranking[0][0];
+	bestRank = ranking[0][1];
 
 	return [ bestId, bestRank ];
 }
