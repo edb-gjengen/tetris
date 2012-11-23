@@ -7,15 +7,15 @@ var ACTION_DROP = 4;
 var game;
 var version = "0.3";
 
-var mod_rank_height_mul   = 2;
-var mod_rank_hole_malus   = 15;
-var mod_rank_hole_mult    = 1.2;
-var mod_rank_hole_decay   = 0.2;
-var mod_rank_line_clear   = 8;
+var mod_rank_height_mul   = 0.5;
+var mod_rank_hole_malus   = 16;
+var mod_rank_hole_mult    = 1.25;
+var mod_rank_hole_decay   = 0.8;
+var mod_rank_line_clear   = 5;
 var mod_rank_shaft        = 5;
-var mod_rank_shaft_deep   = 2.0;
+var mod_rank_shaft_deep   = 2.5;
 var mod_rank_shaft_ibonus = 0;
-var mod_rank_horizontal   = 1;
+var mod_rank_horizontal   = 1.5;
 
 var bestDropLocation = null;
  
@@ -119,11 +119,11 @@ function rankHeight(brickId, dropLocation, board) {
 	
 	// if highest is invalid, then return a very low rank:
 	if (highest >= game.height)   return -100000;
-	if (highest >= game.height-2) return -1000;
-	if (highest >= game.height-4) return -500;
+	if (highest >= game.height-2) return -10000;
+	//if (highest >= game.height-4) return -500;
 	
 
-	var old_highest = -1;
+	/*var old_highest = -1;
 
 	// find the last highest point on board:
 	for (var y = game.height-1; y > 0 && old_highest < 0; y--) {
@@ -132,12 +132,8 @@ function rankHeight(brickId, dropLocation, board) {
 				old_highest = y;
 			}
 		}
-	}
+	}*/
 
-
-	//return -(Math.pow(lowest, 2) / game.height);
-	//return -(Math.pow(highest, 2) / game.height);
-	//return -(Math.pow(sum/4.0, 2) / game.height);
 	//return - Math.pow(highest/game.height, 2) * highest - mod_rank_height_mul * Math.max(0, highest - old_highest);
 	return - highest * mod_rank_hole_mult;
 
@@ -223,6 +219,8 @@ function rankHorizontal(board) {
 
 			if (bleft != bright) {
 				totalRank -= mod_rank_horizontal;
+			} else {
+				totalRank += mod_rank_horizontal;
 			}
 		}
 	}
@@ -260,7 +258,7 @@ function chooseBestRank(brickId, board, dropLocations, level) {
 
 		rank += rankHeight(brickId, dropLocations[i], game.board);
 		rank += rankAmountHoles(tempBoard);
-		//rank += rankClearedRows(linesCleared);
+		rank += rankClearedRows(linesCleared);
 		rank += rankShafts(brickId, dropLocations[i], tempBoard);
 		rank += rankHorizontal(tempBoard);
 
@@ -271,13 +269,15 @@ function chooseBestRank(brickId, board, dropLocations, level) {
 			bestRank = rank;
 			bestBoard = tempBoard;
 		}
+
+		if (level < 1) {
+			nextBrickId = game.peekNextBrick();
+			//nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, tempBoard);
+			//nextRank = chooseBestRank(nextBrickId, tempBoard, nextLevelDropLocations, level + 1);
+			//rank += nextRank[1];
 	}
 
-	if (level < 1) {
-		//nextBrickId = game.peekNextBrick();
-		//nextLevelDropLocations = getAllPossibleDropLocations(nextBrickId, game.getBrickStartingLocation(nextBrickId), 0, tempBoard);
-		//nextRank = chooseBestRank(nextBrickId, tempBoard, nextLevelDropLocations, level + 1);
-		//rank += nextRank[1];
+
 	}
 
 	return [ bestId, bestRank ];
