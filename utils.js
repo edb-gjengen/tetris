@@ -11,6 +11,16 @@ function createArray(length) {
     return a;
 }
 
+function copyArray(from, to) {
+	for (var i = 0; i < to.length; i++) {
+		for (var j = 0; j < to[i].length; j++) {
+			to[i][j] = from[i][j];
+		}
+	}
+
+	return;
+}
+
 function arrayContains(array, element) {
 	for (var i = 0; i < array.length; i++) {
 		if (array[i] == element) {

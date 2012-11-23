@@ -18,7 +18,7 @@ var mod_rank_shaft_ibonus = 0;
 var mod_rank_horizontal   = 1.5;
 
 var settings_level_depth     = 1;
-var settings_level_precision = 20;
+var settings_level_precision = 50;
 
 var bestDropLocation = null;
  
@@ -237,7 +237,10 @@ function chooseBestRank(brickId, board, dropLocations, level) {
 	var ranking = [];
 
 	for (var i = 0; i < dropLocations.length; i++) {
-		var tempBoard = $.extend(true, [], board);
+		//var tempBoard = $.extend(true, [], board);
+		var tempBoard = createArray(game.width, game.height);
+		copyArray(board, tempBoard);
+
 		var shape = game.brickShape(brickId, dropLocations[i][2]);
 	
 		// prepare tempBoard:
@@ -264,6 +267,9 @@ function chooseBestRank(brickId, board, dropLocations, level) {
 		rank += rankHorizontal(tempBoard);
 	
 		ranking.push([i, rank, tempBoard]);
+	}
+	if (ranking.length == 0) {
+		return [-1, -100000];
 	}
 
 	ranking.sort(function(a,b) {
