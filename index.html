@@ -2,30 +2,84 @@
 	<head>
 		<script src="jquery-1.7.1.js"></script>
 		<script src="utils.js"></script>
-		<script src="tetris-canvas.js"></script>
 		<script src="tetris-stats.js"></script>
+		<script src="tetris-canvas.js"></script>
 		<script src="tetris.js"></script>
-		<script src="tetris-ai.js"></script> 
 		
 		<style>
-			#tetris-board {
+			body {
+				font-family: Courier, "Courier New", monospace;
+			}
+			.tetris-board, #next-bricks {
 				background-color:black;
 				margin-left:auto;
 				margin-right:auto;
 			}
-		</style>
+			#lines {
+				font-size: 4em;
+				font-weight: bold;
+			}
+			#infobox {
+				text-align: center;
+					}
+				</style>
+
+				<script type='text/javascript'>
+					function include(filename) {
+						var fileref = document.createElement('script');
+						fileref.type = "text/javascript";
+						fileref.src = filename;
+						if (typeof fileref !== "undefined") {
+							document.getElementsByTagName("head")[0].appendChild(fileref);
+							console.log('Loading ' +filename);
+						} else {
+							console.error('Failed to load ' +filename);	
+						}
+					}
+					
+					var QueryString = function () {
+						// This function is anonymous, is executed immediately and 
+						// the return value is assigned to QueryString!
+						var query_string = {};
+						var query = window.location.search.substring(1);
+						var vars = query.split("&");
+						for (var i=0;i<vars.length;i++) {
+							var pair = vars[i].split("=");
+							// If first entry with this name
+							if (typeof query_string[pair[0]] === "undefined") {
+								query_string[pair[0]] = pair[1];
+								// If second entry with this name
+							} else if (typeof query_string[pair[0]] === "string") {
+								var arr = [ query_string[pair[0]], pair[1] ];
+								query_string[pair[0]] = arr;
+								// If third or later entry with this name
+							} else {
+								query_string[pair[0]].push(pair[1]);
+							}
+						} 
+						return query_string;
+					} ();
+
+					var aiLeft = QueryString.ai1;
+					var aiRight = QueryString.ai2;
+
+					include('tetris-ai-'+aiLeft+'.js');
+					include('tetris-ai-'+airight+'.js');
+		</script>
 	</head>
 
 	<body>
-		<div><canvas id="tetris-board" height="720" width="480" /></div>
+		<script>
+			window.onload = function() {
+				eval('new '+aiLeft+'("tetris-board-left")');
+				eval('new '+aiRight+'("tetris-board-right")');
+			};
+		</script>
 
-		<div style="display:none;">
-			<ul style>Controls:
-				<li>a,d - left/right</li>
-				<li>w - rotate</li>
-				<li>s - down</li>
-				<li>space - hard drop</li>
-			</ul>
+		<div>
+			<canvas id="tetris-board-left" class="tetris-board" height="720" width="480"></canvas>
+		    <canvas id="tetris-board-right" class="tetris-board" height="720" width="480"></canvas>
 		</div>
 	</body>
 </html>
+
