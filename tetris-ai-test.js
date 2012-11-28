@@ -1,4 +1,6 @@
-function test(elementId) {
+function test(elementId, randomseed) {
+	if (typeof randomseed === 'undefined') randomseed = Math.floor(1337 * Math.random());
+
 	var ACTION_LEFT = 1;
 	var ACTION_RIGHT = 2;
 	var ACTION_ROTATE = 3;
@@ -90,7 +92,7 @@ function test(elementId) {
 	}
 	
 	this.init = function() {
-		this.game = new TetrisGame(elementId);
+		this.game = new TetrisGame(elementId, undefined, undefined, randomseed);
 		this.game.startGame();
 		this.startAI();
 	}

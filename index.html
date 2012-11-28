@@ -1,11 +1,12 @@
 <html>
 	<head>
+		<script src=http://davidbau.com/encode/seedrandom-min.js></script>
 		<script src="jquery-1.7.1.js"></script>
 		<script src="utils.js"></script>
 		<script src="tetris-stats.js"></script>
 		<script src="tetris-canvas.js"></script>
 		<script src="tetris.js"></script>
-		
+
 		<style>
 			body {
 				font-family: Courier, "Courier New", monospace;
@@ -64,15 +65,15 @@
 					var aiRight = QueryString.ai2;
 
 					include('tetris-ai-'+aiLeft+'.js');
-					include('tetris-ai-'+airight+'.js');
+					include('tetris-ai-'+aiRight+'.js');
 		</script>
 	</head>
 
 	<body>
 		<script>
 			window.onload = function() {
-				eval('new '+aiLeft+'("tetris-board-left")');
-				eval('new '+aiRight+'("tetris-board-right")');
+				eval('new '+aiLeft+'("tetris-board-left", 1337)');
+				eval('new '+aiRight+'("tetris-board-right", 1337)');
 			};
 		</script>
 

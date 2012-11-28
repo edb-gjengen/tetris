@@ -1,4 +1,7 @@
-function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
+function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId, seed) {
+	if (typeof seed === 'undefined') seed = Math.floor(1337 * Math.random());
+	Math.seedrandom(seed);
+
 	/*********/
 	/* Enum: */
 	/*********/
@@ -47,6 +50,8 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	this.nextBrickArray = Array(5);
 	this.nextBrickArrayIndex = 0;
 	
+	this.rng = Math.random;
+
 	/**************/
 	/* Functions: */
 	/**************/
@@ -110,7 +115,11 @@ function TetrisGame(canvasId, linesCounterId, nextBricksCanvasId) {
 	}
 	
 	this.getRandomBrick = function() {
+		var oldRandom = Math.random;
+		Math.random = this.rng;
 		return 1 + Math.floor(Math.random() * 7);
+		this.rng = Math.random;
+		Math.random = oldRandom;
 	}
 
 	this.getNextBrick = function() {
