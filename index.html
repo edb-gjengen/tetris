@@ -37,6 +37,17 @@
 							console.error('Failed to load ' +filename);	
 						}
 					}
+
+					function instantiate(className, args) {
+						var o, f, c;
+					    c = window[className]; // get reference to class constructor function
+					    f = function(){}; // dummy function
+					    f.prototype = c.prototype; // reference same prototype
+					    o = new f(); // instantiate dummy function to copy prototype properties
+					    c.apply(o, args); // call class constructor, supplying new object as context
+					    o.constructor = c; // assign correct constructor (not f)
+					    return o;
+					}
 					
 					var QueryString = function () {
 						// This function is anonymous, is executed immediately and 
@@ -71,9 +82,9 @@
 
 	<body>
 		<script>
-			window.onload = function() {
-				eval('new '+aiLeft+'("tetris-board-left", 1337)');
-				eval('new '+aiRight+'("tetris-board-right", 1337)');
+			window.onload = function() {	
+				instantiate(aiLeft, ["tetris-board-left", 1337]);
+				instantiate(aiRight, ["tetris-board-right", 1337]);
 			};
 		</script>
 
