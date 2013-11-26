@@ -1,5 +1,8 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<title>Tetris</title>
+		<meta charset="utf-8" />
 		<script src="jquery-1.7.1.js"></script>
 		<script src="utils.js"></script>
 		<script src="tetris-canvas.js"></script>
@@ -8,19 +11,48 @@
 		<script src="tetris-ai.js"></script> 
 		
 		<style>
+			body {
+				font-family: Courier, "Courier New", monospace;
+				background: #000;
+				color: #ddd;
+				margin: 0;
+			}
+			#game {
+				width: 700px;
+				margin: 0 auto;
+			}
 			#tetris-board {
-				background-color:black;
-				margin-left:auto;
-				margin-right:auto;
+				border: 10px solid #00d;
+				padding-left: 2px;
+				padding-bottom: 2px;
+			}
+			#tetris-board, #infobox, #musicbutton {
+				float: left;
+			}
+			#lines {
+				font-size: 4em;
+				font-weight: bold;
+			}
+			#infobox {
+				text-align: center;
+				width: 198px;
 			}
 		</style>
 	</head>
-
+	
 	<body>
-		<div><canvas id="tetris-board" height="720" width="480" /></div>
-
+		<div id="game">
+			<canvas id="tetris-board" height="720" width="480"></canvas>
+			<div id="infobox">
+				<p>Lines:<br /><span id="lines">0</span></p>
+				<p>Next bricks:</p>
+				<div><canvas id="next-bricks" height="500" width="100"></canvas></div>
+			</div>
+		</div>
+		
 		<div style="display:none;">
-			<ul style>Controls:
+			<p>Controls:</p>
+			<ul>
 				<li>a,d - left/right</li>
 				<li>w - rotate</li>
 				<li>s - down</li>

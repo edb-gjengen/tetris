@@ -88,7 +88,7 @@ function startAI() {
 }
 
 $(document).ready(function() {
-	game = new TetrisGame("tetris-board");
+	game = new TetrisGame("tetris-board", "lines", "next-bricks");
 	game.startGame();
 	startAI();
 });
